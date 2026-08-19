@@ -1,0 +1,105 @@
+# ============================================================================
+#  RU — российские сервисы для КЛИЕНТСКОГО роутинга (идут мимо VPN, DIRECT).
+#  В роутинге:  "ext:custom-geosite.dat:RU"  ->  outbound "direct"
+# ============================================================================
+#
+#  ЗДЕСЬ НЕТ доменов в зонах .ru / .su / .рф — они ловятся регулярками
+#  на стороне клиента (их бессмысленно перечислять поштучно):
+#
+#      "regexp:.*\\.ru$", "regexp:.*\\.su$", "regexp:.*\\.xn--p1ai$"
+#
+#  Поэтому ниже — только российские сервисы, живущие в ЧУЖИХ зонах
+#  (.com/.net/.tv/.me/...), которые regexp'ом не поймать.
+
+# --- Яндекс (вся экосистема: поиск, карты, музыка, диск, облако) ---
+yandex.net
+yandex.com
+yandex.com.tr
+yastatic.net
+yastat.net
+yandexcloud.net
+ya.cc
+yadi.sk
+yandex.st
+yandex.eu
+
+# --- VK / Одноклассники / Mail.ru (CDN и API вне .ru) ---
+vk.com
+vk.me
+vk-cdn.net
+vk-portal.net
+vkuser.net
+vkuservideo.net
+vkuseraudio.net
+vkuserlive.net
+vkcdn.io
+userapi.com
+mycdn.me
+my.com
+mradx.net
+okcdn.ru
+
+# --- Мессенджеры и корпоративные сервисы РФ ---
+express.ms
+public.express
+corp.express
+tamtam.chat
+icq.com
+biz.mail.ru
+
+# --- Хабр, медиа, справочники ---
+habr.com
+habrastorage.org
+habrcdn.net
+nplus1.news
+meduza.io
+2gis.com
+2gis.io
+moex.com
+qms.io
+
+# --- Онлайн-кинотеатры и музыка (вне .ru) ---
+okko.tv
+more.tv
+premier.one
+kion.tv
+zvuk.com
+sber-zvuk.com
+
+# --- Банки, платежи, госуслуги (вне .ru) ---
+sberbank.com
+sber.pro
+sberdevices.com
+alfabank.com
+vtb.com
+raiffeisen.com
+qiwi.com
+tbank.tech
+mironline.io
+
+# --- Безопасность и софт ---
+kaspersky.com
+kaspersky-labs.com
+kasperskysecurity.com
+drweb.com
+1c.dev
+bitrix24.com
+bitrix.info
+cs-cart.com
+
+# --- Хостинг / CDN / инфраструктура ---
+selectel.com
+selcdn.net
+timeweb.cloud
+vscale.io
+ngenix.net
+cdnvideo.net
+t1.cloud
+mts.io
+
+# --- Игры и прочее ---
+wargaming.net
+lesta.games
+gaijin.net
+mail.games
+1cgs.eu

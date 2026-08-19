@@ -1,0 +1,14 @@
+# AI — сервисы, которые режут по IP выходной ноды.
+# Их удобно уводить в отдельный чистый outbound (WARP / резидентная нода).
+#
+# В роутинге:  "ext:custom-geosite.dat:AI"
+
+openai.com
+chatgpt.com
+oaistatic.com
+oaiusercontent.com
+gemini.google.com
+aistudio.google.com
+anthropic.com
+claude.ai
+perplexity.ai

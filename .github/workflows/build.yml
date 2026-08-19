@@ -1,0 +1,134 @@
+name: build geodata
+
+on:
+  # кнопка "Run workflow" во вкладке Actions — собрать когда захочу
+  workflow_dispatch:
+  # автосборка при правке списков
+  push:
+    branches: [main, master]
+    paths:
+      - "data/**"
+      - "tools/**"
+      - ".github/workflows/build.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: geodata-build
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+
+      # ---------- сборка ----------
+      - name: Собрать .dat и клиентские списки
+        run: go run ./tools/geogen -data data -out dist
+
+      # ---------- проверка настоящим Xray ----------
+      - name: Проверить .dat реальным Xray-core
+        run: |
+          set -euo pipefail
+          # у XTLS все релизы помечены pre-release, поэтому берём первый из списка,
+          # а не /releases/latest
+          TAG=$(curl -sSf -H "Authorization: Bearer ${{ github.token }}" \
+            'https://api.github.com/repos/XTLS/Xray-core/releases?per_page=1' \
+            | jq -r '.[0].tag_name')
+          echo "Xray $TAG"
+          curl -sSfL -o xray.zip \
+            "https://github.com/XTLS/Xray-core/releases/download/$TAG/Xray-linux-64.zip"
+          mkdir -p xraybin && unzip -q -o xray.zip -d xraybin
+
+          # конфиг, который ссылается на КАЖДУЮ собранную категорию через ext:
+          python3 - <<'PY' > testconf.json
+          import glob, json, os
+          rules = []
+          for f in sorted(glob.glob("dist/clash/site-*.txt")):
+              code = os.path.basename(f)[len("site-"):-len(".txt")].upper()
+              rules.append({"type": "field", "domain": ["ext:custom-geosite.dat:" + code],
+                            "outboundTag": "direct"})
+          for f in sorted(glob.glob("dist/clash/ip-*.txt")):
+              code = os.path.basename(f)[len("ip-"):-len(".txt")].upper()
+              rules.append({"type": "field", "ip": ["ext:custom-geoip.dat:" + code],
+                            "outboundTag": "direct"})
+          rules.append({"type": "field", "network": "tcp,udp", "outboundTag": "direct"})
+          print(json.dumps({
+              "log": {"loglevel": "warning"},
+              "inbounds": [{"tag": "in", "port": 10800, "listen": "127.0.0.1",
+                            "protocol": "dokodemo-door",
+                            "settings": {"address": "127.0.0.1", "port": 80, "network": "tcp"}}],
+              "outbounds": [{"tag": "direct", "protocol": "freedom"}],
+              "routing": {"domainStrategy": "IPIfNonMatch", "rules": rules},
+          }, indent=2))
+          PY
+
+          XRAY_LOCATION_ASSET="$PWD/dist" ./xraybin/xray run -c testconf.json -test
+
+      # ---------- бонус: rule-set для sing-box (.srs) ----------
+      - name: Скомпилировать sing-box rule-set
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          TAG=$(curl -sSf -H "Authorization: Bearer ${{ github.token }}" \
+            https://api.github.com/repos/SagerNet/sing-box/releases/latest | jq -r .tag_name)
+          VER=${TAG#v}
+          curl -sSfL -o sb.tar.gz \
+            "https://github.com/SagerNet/sing-box/releases/download/${TAG}/sing-box-${VER}-linux-amd64.tar.gz"
+          tar -xzf sb.tar.gz
+          SB=$(find . -maxdepth 2 -name sing-box -type f | head -1)
+          for f in dist/singbox/*.json; do
+            "$SB" rule-set compile --output "${f%.json}.srs" "$f"
+          done
+
+      # ---------- публикация ----------
+      - name: Выложить в релиз "latest"
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          NOTES="Собрано $(date -u '+%Y-%m-%d %H:%M UTC') из коммита ${GITHUB_SHA:0:7}."
+          gh release view latest >/dev/null 2>&1 \
+            || gh release create latest --title "latest" --notes "$NOTES" --target "$GITHUB_SHA"
+          gh release edit latest --notes "$NOTES"
+          gh release upload latest \
+            dist/custom-geosite.dat dist/custom-geoip.dat dist/checksums.txt \
+            dist/clash/* dist/singbox/* --clobber
+
+      - name: Выложить в ветку release (raw + jsDelivr)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          cd dist
+          rm -f summary.md
+          git init -q
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -qm "geodata build from ${GITHUB_SHA:0:7}"
+          git push -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:release
+
+      - name: Итоги сборки
+        run: |
+          {
+            echo "## Собрано"
+            cat dist/summary.md
+            echo
+            echo "### Ссылки для серверов"
+            echo '```'
+            echo "https://github.com/${GITHUB_REPOSITORY}/releases/latest/download/custom-geosite.dat"
+            echo "https://github.com/${GITHUB_REPOSITORY}/releases/latest/download/custom-geoip.dat"
+            echo '```'
+            echo "### Зеркала (если GitHub недоступен с сервера)"
+            echo '```'
+            echo "https://cdn.jsdelivr.net/gh/${GITHUB_REPOSITORY}@release/custom-geosite.dat"
+            echo "https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/release/custom-geosite.dat"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

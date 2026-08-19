@@ -1,0 +1,39 @@
+# ============================================================================
+#  CONNECTIVITY — домены проверки интернета (captive portal / NCSI).
+#  Задумка: на КЛИЕНТЕ они идут В ТУННЕЛЬ, а на СЕРВЕРЕ (нода) серверный
+#  роутинг отправляет их в direct. Так проверка связи меряет реальный путь
+#  «клиент -> нода -> интернет» и показывает честный пинг через VPN.
+# ============================================================================
+#
+#  На клиенте:  "ext:custom-geosite.dat:CONNECTIVITY"  ->  outbound "proxy"
+#  На ноде:     "ext:custom-geosite.dat:CONNECTIVITY"  ->  outbound "direct"
+#
+#  ВАЖНО: правило должно стоять ВЫШЕ правил RU/SYSTEM/DIRECT, иначе
+#  captive.apple.com уедет в direct вместе с остальным Apple.
+
+# --- Microsoft NCSI (Windows) ---
+msftconnecttest.com
+msftncsi.com
+dns.msftncsi.com
+
+# --- Apple (macOS/iOS captive portal) ---
+captive.apple.com
+
+# --- Google / Android ---
+full:connectivitycheck.gstatic.com
+full:connectivitycheck.android.com
+full:clients3.google.com
+full:clients1.google.com
+full:android.clients.google.com
+
+# --- Cloudflare / Firefox / GNOME / Ubuntu / Debian ---
+cp.cloudflare.com
+detectportal.firefox.com
+nmcheck.gnome.org
+connectivity-check.ubuntu.com
+network-test.debian.org
+
+# --- Вендоры телефонов ---
+connectivitycheck.platform.hicloud.com
+connect.rom.miui.com
+wifi.vivo.com.cn

@@ -1,0 +1,96 @@
+# ============================================================================
+#  SYSTEM — системные домены ОС: пуши, обновления, время, проверка сертификатов.
+#  Идут МИМО VPN (сплит-роутинг -> direct).
+#  В роутинге:  "ext:custom-geosite.dat:SYSTEM"  ->  outbound "direct"
+# ============================================================================
+#
+#  Зачем мимо VPN:
+#   * APNs/FCM держат постоянное TCP-соединение — гонять его через туннель
+#     значит терять пуши при каждом реконнекте VPN;
+#   * обновления ОС — это гигабайты, незачем жечь трафик ноды;
+#   * OCSP/CRL через туннель = залипание на проверке сертификатов;
+#   * NTP через прокси часто просто не работает (UDP).
+
+# --- Apple: push-уведомления (APNs) ---
+push.apple.com
+push-apple.com.akadns.net
+courier.push.apple.com
+
+# --- Apple: активация, обновления, время, сертификаты ---
+albert.apple.com
+static.ips.apple.com
+gs-loc.apple.com
+gsp-ssl.ls.apple.com
+time.apple.com
+time-ios.apple.com
+ocsp.apple.com
+ocsp2.apple.com
+crl.apple.com
+valid.apple.com
+mesu.apple.com
+gdmf.apple.com
+swcdn.apple.com
+swscan.apple.com
+swdist.apple.com
+appldnld.apple.com
+updates.cdn-apple.com
+xp.apple.com
+
+# --- Google / Android: пуши FCM (в т.ч. alt1-mtalk, alt2-mtalk...) ---
+keyword:mtalk.google.com
+fcm.googleapis.com
+fcm-xmpp.googleapis.com
+gcm-http.googleapis.com
+android.clients.google.com
+firebaseinstallations.googleapis.com
+
+# --- Google: время и сертификаты ---
+time.google.com
+time1.google.com
+ocsp.pki.goog
+crl.pki.goog
+pki.goog
+
+# --- Microsoft / Windows: обновления, время, активация ---
+windowsupdate.com
+windowsupdate.microsoft.com
+update.microsoft.com
+delivery.mp.microsoft.com
+do.dsp.mp.microsoft.com
+tlu.dl.delivery.mp.microsoft.com
+time.windows.com
+activation.sls.microsoft.com
+validation.sls.microsoft.com
+crl.microsoft.com
+ocsp.msocsp.com
+
+# --- Linux: обновления пакетов и время ---
+archive.ubuntu.com
+security.ubuntu.com
+ports.ubuntu.com
+ntp.ubuntu.com
+deb.debian.org
+security.debian.org
+pool.ntp.org
+ntppool.org
+
+# --- Публичные NTP ---
+time.cloudflare.com
+time.nist.gov
+
+# --- OCSP / CRL основных удостоверяющих центров ---
+ocsp.digicert.com
+crl3.digicert.com
+crl4.digicert.com
+ocsp.sectigo.com
+crl.sectigo.com
+o.lencr.org
+r3.o.lencr.org
+e5.o.lencr.org
+ocsp.globalsign.com
+ocsp.usertrust.com
+ocsp.godaddy.com
+
+# --- Вендорские пуши/сервисы телефонов ---
+push-api.cloud.huawei.com
+api.push.samsungosp.com

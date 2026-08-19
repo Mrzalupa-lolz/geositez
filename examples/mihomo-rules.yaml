@@ -1,0 +1,81 @@
+# ============================================================================
+#  КЛИЕНТСКИЙ роутинг для mihomo / Clash.Meta (шаблон подписки Remnawave).
+#  Клиент не умеет читать .dat, поэтому забирает те же списки в виде
+#  rule-provider'ов по URL — их собирает тот же workflow.
+#  Замени OWNER/geositez на свой репозиторий.
+# ============================================================================
+
+rule-providers:
+  # реклама -> REJECT
+  geositez-ads:
+    type: http
+    behavior: classical
+    format: text
+    interval: 86400
+    url: "https://github.com/OWNER/geositez/releases/latest/download/site-ads.txt"
+    path: ./ruleset/geositez-ads.txt
+
+  # российские сервисы вне зон .ru/.su/.рф -> DIRECT
+  geositez-ru:
+    type: http
+    behavior: classical
+    format: text
+    interval: 86400
+    url: "https://github.com/OWNER/geositez/releases/latest/download/site-ru.txt"
+    path: ./ruleset/geositez-ru.txt
+
+  # сети российских сервисов -> DIRECT
+  geositez-ru-ip:
+    type: http
+    behavior: classical
+    format: text
+    interval: 86400
+    url: "https://github.com/OWNER/geositez/releases/latest/download/ip-ru-ip.txt"
+    path: ./ruleset/geositez-ru-ip.txt
+
+  # системные домены (пуши, обновления, время, OCSP) -> DIRECT
+  geositez-system:
+    type: http
+    behavior: classical
+    format: text
+    interval: 86400
+    url: "https://github.com/OWNER/geositez/releases/latest/download/site-system.txt"
+    path: ./ruleset/geositez-system.txt
+
+  # проверка связи -> В ТУННЕЛЬ (нода отправит их в direct)
+  geositez-connectivity:
+    type: http
+    behavior: classical
+    format: text
+    interval: 86400
+    url: "https://github.com/OWNER/geositez/releases/latest/download/site-connectivity.txt"
+    path: ./ruleset/geositez-connectivity.txt
+
+  # сервисы, режущие по IP сервера
+  geositez-ai:
+    type: http
+    behavior: classical
+    format: text
+    interval: 86400
+    url: "https://github.com/OWNER/geositez/releases/latest/download/site-ai.txt"
+    path: ./ruleset/geositez-ai.txt
+
+# ---------------------------------------------------------------------------
+# ПОРЯДОК ВАЖЕН: первое совпавшее правило выигрывает.
+# CONNECTIVITY идёт выше SYSTEM/RU — иначе captive.apple.com уедет в DIRECT.
+# ---------------------------------------------------------------------------
+rules:
+  - RULE-SET,geositez-connectivity,🚀 VPN
+  - RULE-SET,geositez-ads,REJECT
+  - RULE-SET,geositez-system,DIRECT
+  - RULE-SET,geositez-ru,DIRECT
+  - RULE-SET,geositez-ru-ip,DIRECT
+
+  # зоны .ru / .su / .рф целиком — регулярками, поштучно их перечислять незачем
+  - DOMAIN-REGEX,.*\.ru$,DIRECT
+  - DOMAIN-REGEX,.*\.su$,DIRECT
+  - DOMAIN-REGEX,.*\.xn--p1ai$,DIRECT
+
+  - RULE-SET,geositez-ai,🚀 VPN
+  - GEOIP,private,DIRECT,no-resolve
+  - MATCH,🚀 VPN

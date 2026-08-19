@@ -1,0 +1,9 @@
+dist/
+xraybin/
+*.zip
+*.tar.gz
+*.srs
+xray
+xray.exe
+.env
+*.secret

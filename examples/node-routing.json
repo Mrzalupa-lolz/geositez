@@ -1,0 +1,51 @@
+{
+  "_комментарий": [
+    "СЕРВЕРНЫЙ роутинг — вставляется в Config Profile ноды в панели Remnawave.",
+    "Работает потому, что custom-geosite.dat / custom-geoip.dat примонтированы",
+    "в /usr/local/share/xray/ на самой ноде (это делает scripts/remnanode-geodata.sh).",
+    "Правила проверяются СВЕРХУ ВНИЗ, побеждает первое совпавшее.",
+    "Ключи с подчёркиванием — только для чтения, из боевого конфига их убрать."
+  ],
+
+  "routing": {
+    "domainStrategy": "IPIfNonMatch",
+    "rules": [
+      {
+        "_": "1. проверка связи — сразу наружу, чтобы клиент мерил честный пинг через ноду",
+        "type": "field",
+        "domain": ["ext:custom-geosite.dat:CONNECTIVITY"],
+        "outboundTag": "DIRECT"
+      },
+      {
+        "_": "2. реклама и трекеры — в чёрную дыру, экономит трафик ноды",
+        "type": "field",
+        "domain": ["ext:custom-geosite.dat:ADS"],
+        "outboundTag": "BLOCK"
+      },
+      {
+        "_": "3. локалка и приватные сети — блок, иначе внутрянка утечёт в туннель",
+        "type": "field",
+        "ip": ["geoip:private"],
+        "outboundTag": "BLOCK"
+      },
+      {
+        "_": "4. опционально: сервисы, режущие по IP ноды, — в чистый outbound (WARP)",
+        "_отключено": "убери подчёркивание у outboundTag, если поднят WARP",
+        "type": "field",
+        "domain": ["ext:custom-geosite.dat:AI"],
+        "outboundTag": "DIRECT"
+      },
+      {
+        "_": "5. всё остальное — наружу",
+        "type": "field",
+        "network": "tcp,udp",
+        "outboundTag": "DIRECT"
+      }
+    ]
+  },
+
+  "outbounds": [
+    { "tag": "DIRECT", "protocol": "freedom" },
+    { "tag": "BLOCK", "protocol": "blackhole" }
+  ]
+}
