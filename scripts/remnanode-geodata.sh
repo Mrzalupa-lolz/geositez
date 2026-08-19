@@ -12,7 +12,7 @@
 set -euo pipefail
 
 # ─────────── настройки ───────────
-REPO="${REPO:-OWNER/REPO}"                       # <-- ВПИШИ СВОЙ репозиторий
+REPO="${REPO:-Mrzalupa-lolz/geositez}"           # откуда качать списки
 FILES="${FILES:-custom-geosite.dat custom-geoip.dat}"
 DEST="${DEST:-/opt/remnanode/geodata}"           # где файлы лежат на хосте
 CONTAINER="${CONTAINER:-remnanode}"
@@ -42,18 +42,22 @@ check_repo() {
 fetch_one() {
   local name="$1" url="${BASE_URL}/$1" tmp
   tmp="$(mktemp "${DEST}/.${name}.XXXXXX")"
-  trap 'rm -f "$tmp"' RETURN
 
-  curl -fsSL --retry 3 --retry-delay 2 --max-time 120 -o "$tmp" "$url" \
-    || die "не скачался $url (репозиторий приватный? неверное имя? нет сети?)"
+  if ! curl -fsSL --retry 3 --retry-delay 2 --max-time 120 -o "$tmp" "$url"; then
+    rm -f "$tmp"; die "не скачался $url (репозиторий приватный? неверное имя? нет сети?)"
+  fi
 
   # .dat — это protobuf, он всегда начинается с байта 0x0A и не бывает пустым
-  [ -s "$tmp" ] || die "$name скачался пустым"
-  [ "$(head -c 1 "$tmp" | od -An -tx1 | tr -d ' ')" = "0a" ] \
-    || die "$name не похож на geodata-файл (пришла HTML-страница вместо .dat?)"
+  if [ ! -s "$tmp" ]; then
+    rm -f "$tmp"; die "$name скачался пустым"
+  fi
+  if [ "$(head -c 1 "$tmp" | od -An -tx1 | tr -d ' ')" != "0a" ]; then
+    rm -f "$tmp"; die "$name не похож на geodata-файл (пришла HTML-страница вместо .dat?)"
+  fi
 
   if [ -f "${DEST}/${name}" ] \
      && [ "$(sha256sum <"$tmp" | cut -d' ' -f1)" = "$(sha256sum <"${DEST}/${name}" | cut -d' ' -f1)" ]; then
+    rm -f "$tmp"
     log "$name — без изменений"
     return 1
   fi
@@ -62,6 +66,7 @@ fetch_one() {
   # в контейнер bind-mount'ом, и подмена через rename сломала бы монтирование.
   cat "$tmp" >"${DEST}/${name}"
   chmod 0644 "${DEST}/${name}"
+  rm -f "$tmp"
   log "$name — обновлён ($(stat -c%s "${DEST}/${name}") байт)"
   return 0
 }

@@ -107,7 +107,6 @@ jobs:
         run: |
           set -euo pipefail
           cd dist
-          rm -f summary.md
           git init -q
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"

@@ -75,17 +75,17 @@ go run ./tools/geogen -data data -out dist
 Релиз с тегом `latest` (перезаписывается каждой сборкой) плюс ветка `release`:
 
 ```
-https://github.com/OWNER/geositez/releases/latest/download/custom-geosite.dat
-https://github.com/OWNER/geositez/releases/latest/download/custom-geoip.dat
-https://github.com/OWNER/geositez/releases/latest/download/site-ads.txt      (mihomo)
-https://github.com/OWNER/geositez/releases/latest/download/site-ads.srs      (sing-box)
+https://github.com/Mrzalupa-lolz/geositez/releases/latest/download/custom-geosite.dat
+https://github.com/Mrzalupa-lolz/geositez/releases/latest/download/custom-geoip.dat
+https://github.com/Mrzalupa-lolz/geositez/releases/latest/download/site-ads.txt      (mihomo)
+https://github.com/Mrzalupa-lolz/geositez/releases/latest/download/site-ads.srs      (sing-box)
 ```
 
 Зеркала, если с сервера GitHub не открывается:
 
 ```
-https://cdn.jsdelivr.net/gh/OWNER/geositez@release/custom-geosite.dat
-https://raw.githubusercontent.com/OWNER/geositez/release/custom-geosite.dat
+https://cdn.jsdelivr.net/gh/Mrzalupa-lolz/geositez@release/custom-geosite.dat
+https://raw.githubusercontent.com/Mrzalupa-lolz/geositez/release/custom-geosite.dat
 ```
 
 > Репозиторий должен быть **публичным** — иначе серверы не скачают файлы без токена.
@@ -98,9 +98,9 @@ https://raw.githubusercontent.com/OWNER/geositez/release/custom-geosite.dat
 
 ```bash
 curl -fsSL -o remnanode-geodata.sh \
-  https://raw.githubusercontent.com/OWNER/geositez/main/scripts/remnanode-geodata.sh
+  https://raw.githubusercontent.com/Mrzalupa-lolz/geositez/main/scripts/remnanode-geodata.sh
 chmod +x remnanode-geodata.sh
-REPO=OWNER/geositez sudo -E ./remnanode-geodata.sh install
+REPO=Mrzalupa-lolz/geositez sudo -E ./remnanode-geodata.sh install
 ```
 
 Скрипт:
@@ -129,9 +129,9 @@ Xray умеет качать гео-файлы сам и перечитыват�
 "geodata": {
   "cron": "0 */6 * * *",
   "assets": [
-    { "url": "https://github.com/OWNER/geositez/releases/latest/download/custom-geosite.dat",
+    { "url": "https://github.com/Mrzalupa-lolz/geositez/releases/latest/download/custom-geosite.dat",
       "file": "custom-geosite.dat" },
-    { "url": "https://github.com/OWNER/geositez/releases/latest/download/custom-geoip.dat",
+    { "url": "https://github.com/Mrzalupa-lolz/geositez/releases/latest/download/custom-geoip.dat",
       "file": "custom-geoip.dat" }
   ]
 }

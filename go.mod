@@ -1,3 +1,3 @@
-module github.com/OWNER/REPO
+module github.com/Mrzalupa-lolz/geositez
 
 go 1.22
