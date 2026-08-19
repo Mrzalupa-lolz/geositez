@@ -2,7 +2,7 @@
 #  КЛИЕНТСКИЙ роутинг для mihomo / Clash.Meta (шаблон подписки Remnawave).
 #  Клиент не умеет читать .dat, поэтому забирает те же списки в виде
 #  rule-provider'ов по URL — их собирает тот же workflow.
-#  Замени OWNER/geositez на свой репозиторий.
+#  Ссылки уже указывают на github.com/Mrzalupa-lolz/geositez.
 # ============================================================================
 
 rule-providers:
@@ -12,7 +12,7 @@ rule-providers:
     behavior: classical
     format: text
     interval: 86400
-    url: "https://github.com/OWNER/geositez/releases/latest/download/site-ads.txt"
+    url: "https://github.com/Mrzalupa-lolz/geositez/releases/latest/download/site-ads.txt"
     path: ./ruleset/geositez-ads.txt
 
   # российские сервисы вне зон .ru/.su/.рф -> DIRECT
@@ -21,7 +21,7 @@ rule-providers:
     behavior: classical
     format: text
     interval: 86400
-    url: "https://github.com/OWNER/geositez/releases/latest/download/site-ru.txt"
+    url: "https://github.com/Mrzalupa-lolz/geositez/releases/latest/download/site-ru.txt"
     path: ./ruleset/geositez-ru.txt
 
   # сети российских сервисов -> DIRECT
@@ -30,7 +30,7 @@ rule-providers:
     behavior: classical
     format: text
     interval: 86400
-    url: "https://github.com/OWNER/geositez/releases/latest/download/ip-ru-ip.txt"
+    url: "https://github.com/Mrzalupa-lolz/geositez/releases/latest/download/ip-ru-ip.txt"
     path: ./ruleset/geositez-ru-ip.txt
 
   # системные домены (пуши, обновления, время, OCSP) -> DIRECT
@@ -39,7 +39,7 @@ rule-providers:
     behavior: classical
     format: text
     interval: 86400
-    url: "https://github.com/OWNER/geositez/releases/latest/download/site-system.txt"
+    url: "https://github.com/Mrzalupa-lolz/geositez/releases/latest/download/site-system.txt"
     path: ./ruleset/geositez-system.txt
 
   # проверка связи -> В ТУННЕЛЬ (нода отправит их в direct)
@@ -48,7 +48,7 @@ rule-providers:
     behavior: classical
     format: text
     interval: 86400
-    url: "https://github.com/OWNER/geositez/releases/latest/download/site-connectivity.txt"
+    url: "https://github.com/Mrzalupa-lolz/geositez/releases/latest/download/site-connectivity.txt"
     path: ./ruleset/geositez-connectivity.txt
 
   # сервисы, режущие по IP сервера
@@ -57,7 +57,7 @@ rule-providers:
     behavior: classical
     format: text
     interval: 86400
-    url: "https://github.com/OWNER/geositez/releases/latest/download/site-ai.txt"
+    url: "https://github.com/Mrzalupa-lolz/geositez/releases/latest/download/site-ai.txt"
     path: ./ruleset/geositez-ai.txt
 
 # ---------------------------------------------------------------------------

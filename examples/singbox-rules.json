@@ -2,7 +2,7 @@
   "_комментарий": [
     "КЛИЕНТСКИЙ роутинг для sing-box (Happ, sing-box, NekoBox).",
     "Списки те же самые, но в бинарном формате .srs — их собирает workflow.",
-    "Замени OWNER/geositez на свой репозиторий.",
+    "Ссылки уже указывают на github.com/Mrzalupa-lolz/geositez.",
     "Правила проверяются сверху вниз; CONNECTIVITY должен идти первым."
   ],
   "route": {
@@ -21,7 +21,7 @@
         "tag": "geositez-ads",
         "type": "remote",
         "format": "binary",
-        "url": "https://github.com/OWNER/geositez/releases/latest/download/site-ads.srs",
+        "url": "https://github.com/Mrzalupa-lolz/geositez/releases/latest/download/site-ads.srs",
         "download_detour": "direct",
         "update_interval": "24h"
       },
@@ -29,7 +29,7 @@
         "tag": "geositez-ru",
         "type": "remote",
         "format": "binary",
-        "url": "https://github.com/OWNER/geositez/releases/latest/download/site-ru.srs",
+        "url": "https://github.com/Mrzalupa-lolz/geositez/releases/latest/download/site-ru.srs",
         "download_detour": "direct",
         "update_interval": "24h"
       },
@@ -37,7 +37,7 @@
         "tag": "geositez-ru-ip",
         "type": "remote",
         "format": "binary",
-        "url": "https://github.com/OWNER/geositez/releases/latest/download/ip-ru-ip.srs",
+        "url": "https://github.com/Mrzalupa-lolz/geositez/releases/latest/download/ip-ru-ip.srs",
         "download_detour": "direct",
         "update_interval": "24h"
       },
@@ -45,7 +45,7 @@
         "tag": "geositez-system",
         "type": "remote",
         "format": "binary",
-        "url": "https://github.com/OWNER/geositez/releases/latest/download/site-system.srs",
+        "url": "https://github.com/Mrzalupa-lolz/geositez/releases/latest/download/site-system.srs",
         "download_detour": "direct",
         "update_interval": "24h"
       },
@@ -53,7 +53,7 @@
         "tag": "geositez-connectivity",
         "type": "remote",
         "format": "binary",
-        "url": "https://github.com/OWNER/geositez/releases/latest/download/site-connectivity.srs",
+        "url": "https://github.com/Mrzalupa-lolz/geositez/releases/latest/download/site-connectivity.srs",
         "download_detour": "direct",
         "update_interval": "24h"
       },
@@ -61,7 +61,7 @@
         "tag": "geositez-ai",
         "type": "remote",
         "format": "binary",
-        "url": "https://github.com/OWNER/geositez/releases/latest/download/site-ai.srs",
+        "url": "https://github.com/Mrzalupa-lolz/geositez/releases/latest/download/site-ai.srs",
         "download_detour": "direct",
         "update_interval": "24h"
       }
