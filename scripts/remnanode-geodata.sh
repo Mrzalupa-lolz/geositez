@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 # remnanode-geodata.sh — качает geodata на сервер с remnanode и подкладывает их Xray.
 #
-# Файлов ТРИ, из двух источников:
+# Файлов ЧЕТЫРЕ, из двух источников:
 #   custom-geosite.dat  — наш: ADS, ADS-NETWORKS, SYSTEM, CONNECTIVITY, AI,
 #                         TWITCH-ADS, RU (добавка). Это наша политика роутинга.
+#   custom-geoip.dat    — наш: подсети по категориям из data/geoip (TIKTOK, ...).
+#                         Нужен, когда сервис ловится только по IP, а не по домену.
 #   roscom-geoip.dat    — hydraponique/roscomvpn-geoip: ~15 000 подсетей РФ/РБ,
 #                         пересобирается ежедневно. Массовый RU-роутинг по IP.
 #   roscom-geosite.dat  — hydraponique/roscomvpn-geosite: whitelist, category-ru,
@@ -37,6 +39,7 @@ RESTART="${RESTART:-1}"                          # 1 — рестартить н
 #   https://cdn.jsdelivr.net/gh/ВЛАДЕЛЕЦ/РЕПО@release/ИМЯ.dat
 if [ -z "${SOURCES:-}" ]; then
   SOURCES="https://github.com/${REPO}/releases/latest/download/custom-geosite.dat|custom-geosite.dat"
+  SOURCES="$SOURCES https://github.com/${REPO}/releases/latest/download/custom-geoip.dat|custom-geoip.dat"
   if [ "$UPSTREAM" = "1" ]; then
     SOURCES="$SOURCES https://github.com/${UPSTREAM_GEOIP}/releases/latest/download/geoip.dat|roscom-geoip.dat"
     SOURCES="$SOURCES https://github.com/${UPSTREAM_GEOSITE}/releases/latest/download/geosite.dat|roscom-geosite.dat"

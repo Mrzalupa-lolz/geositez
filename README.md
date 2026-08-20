@@ -164,7 +164,9 @@ https://github.com/Mrzalupa-lolz/geositez/releases/latest/download/site-ads.srs 
 
 ```
 https://cdn.jsdelivr.net/gh/Mrzalupa-lolz/geositez@release/custom-geosite.dat
+https://cdn.jsdelivr.net/gh/Mrzalupa-lolz/geositez@release/custom-geoip.dat
 https://raw.githubusercontent.com/Mrzalupa-lolz/geositez/release/custom-geosite.dat
+https://raw.githubusercontent.com/Mrzalupa-lolz/geositez/release/custom-geoip.dat
 ```
 
 > Репозиторий должен быть **публичным** — иначе серверы не скачают файлы без токена.
@@ -184,9 +186,9 @@ REPO=Mrzalupa-lolz/geositez sudo -E ./remnanode-geodata.sh install
 
 Скрипт:
 
-1. кладёт три файла в `/opt/remnanode/geodata/` — наш `custom-geosite.dat`
-   плюс `roscom-geoip.dat` и `roscom-geosite.dat` (имена нарочно не
-   `geoip.dat`/`geosite.dat`, чтобы не затереть штатные ассеты Xray);
+1. кладёт четыре файла в `/opt/remnanode/geodata/` — наши `custom-geosite.dat`
+   и `custom-geoip.dat` плюс `roscom-geoip.dat` и `roscom-geosite.dat` (имена
+   нарочно не `geoip.dat`/`geosite.dat`, чтобы не затереть штатные ассеты Xray);
 2. показывает, какие строки добавить в `docker-compose.yml` (монтировать нужно
    **по одному файлу**, том на всю папку затрёт дефолтные `geosite.dat`/`geoip.dat`);
 3. ставит systemd-таймер `remnanode-geodata.timer` — раз в час проверяет релиз,
