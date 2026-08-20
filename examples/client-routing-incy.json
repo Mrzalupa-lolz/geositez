@@ -1,0 +1,79 @@
+{
+  "_комментарий": [
+    "КЛИЕНТСКИЙ роутинг для INCY.",
+    "",
+    "INCY принимает РОВНО ОДИН geosite-файл и ОДИН geoip-файл (поля Geositeurl",
+    "и Geoipurl) — они заменяют штатные. Поэтому ссылаемся не на ext:, а на",
+    "geosite:КОД внутри нашего склеенного client-geosite.dat: в нём и наши",
+    "категории, и все категории roscomvpn (29 штук).",
+    "",
+    "Правила задаются не списком по порядку, а ШЕСТЬЮ ПЛОСКИМИ КОРЗИНАМИ.",
+    "Приоритет между корзинами задать нельзя, поэтому пересечения категорий",
+    "убраны на этапе сборки (tools/datmerge): из APPLE вычтен CONNECTIVITY,",
+    "из GOOGLE-PLAY вычтен SYSTEM. См. README, раздел «Один файл для клиента».",
+    "",
+    "ОСТАЁТСЯ ОДНО МЕСТО, ЗАВИСЯЩЕЕ ОТ ПРИОРИТЕТА КОРЗИН: TWITCH-ADS (proxy)",
+    "против TWITCH (direct). Вычесть его нельзя — gql.twitch.tv это поддомен",
+    "twitch.tv, а операции «кроме» в geosite нет. Как проверить и что делать,",
+    "если не сработало — в README, раздел «Twitch в INCY».",
+    "",
+    "Ниже только относящиеся к роутингу поля. Вставляй их в свой профиль,",
+    "остальные (DNS, FakeDNS, GlobalProxy) не трогай."
+  ],
+
+  "Geositeurl": "https://github.com/Mrzalupa-lolz/geositez/releases/latest/download/client-geosite.dat",
+  "Geoipurl": "https://github.com/hydraponique/roscomvpn-geoip/releases/latest/download/geoip.dat",
+
+  "DomainStrategy": "IPIfNonMatch",
+
+  "_BlockSites": "реклама, трекеры, телеметрия Windows",
+  "BlockSites": [
+    "geosite:ADS",
+    "geosite:WIN-SPY"
+  ],
+  "BlockIp": [],
+
+  "_ProxySites": "в туннель: проверка связи, манифест Twitch, AI и всё, что режет российские IP",
+  "ProxySites": [
+    "geosite:CONNECTIVITY",
+    "geosite:TWITCH-ADS",
+    "geosite:AI",
+    "geosite:CATEGORY-GEOBLOCK-RU",
+    "geosite:GOOGLE-DEEPMIND",
+    "geosite:YOUTUBE",
+    "geosite:TELEGRAM",
+    "geosite:GITHUB",
+    "geosite:GOOGLE-PLAY",
+    "geosite:PINTEREST"
+  ],
+  "ProxyIp": [],
+
+  "_DirectSites": "мимо VPN: системное, российское, игры, видео Twitch, торренты",
+  "DirectSites": [
+    "geosite:SYSTEM",
+    "geosite:TWITCH",
+    "geosite:RU",
+    "geosite:WHITELIST",
+    "geosite:CATEGORY-RU",
+    "geosite:APPLE",
+    "geosite:MICROSOFT",
+    "geosite:STEAM",
+    "geosite:EPICGAMES",
+    "geosite:RIOT",
+    "geosite:ORIGIN",
+    "geosite:ESCAPEFROMTARKOV",
+    "geosite:FACEIT",
+    "geosite:TORRENT",
+    "geosite:PRIVATE",
+    "regexp:.*\\.ru$",
+    "regexp:.*\\.su$",
+    "regexp:.*\\.xn--p1ai$"
+  ],
+
+  "_DirectIp": "сети РФ/РБ и локалка — ловят приложения, ходящие на голый IP без DNS",
+  "DirectIp": [
+    "geoip:DIRECT",
+    "geoip:WHITELIST",
+    "geoip:PRIVATE"
+  ]
+}

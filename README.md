@@ -234,12 +234,13 @@ bind-mount так нельзя. Либо таймер + монтирование
 
 Готовые конфиги:
 
-| где | чем | файл |
-|---|---|---|
-| нода | Xray | `examples/node-routing.json` |
-| клиент | Xray (Happ, v2rayN, Nekoray) | `examples/client-routing-xray.json` |
-| клиент | mihomo / Clash.Meta | `examples/mihomo-rules.yaml` |
-| клиент | sing-box | `examples/singbox-rules.json` |
+| где | чем | файл | как ссылается на списки |
+|---|---|---|---|
+| нода | Xray | `examples/node-routing.json` | `ext:` на три файла на диске |
+| клиент | Xray (Nekoray, v2rayN, Happ) | `examples/client-routing-xray.json` | `ext:client-geosite.dat` |
+| клиент | INCY | `examples/client-routing-incy.json` | `geosite:` + плоские корзины |
+| клиент | mihomo / Clash.Meta | `examples/mihomo-rules.yaml` | rule-provider по URL |
+| клиент | sing-box | `examples/singbox-rules.json` | rule-set по URL |
 
 ### Серверный роутинг (Config Profile ноды в панели)
 
@@ -295,6 +296,66 @@ Xray сам приводит к верхнему. Обычные `geosite:` / `g
 `ADS` уже содержит `ADS-NETWORKS` — он подмешивается через `include:` при
 сборке, отдельный набор подключать не надо. Их `category-ads` брать незачем:
 это 2 домена (`ad.mail.ru`, `alt-ad.mail.ru`), оба уже в нашем `ADS`.
+
+### Один файл для клиента: `client-geosite.dat`
+
+Xray-клиенты умеют подменять гео-файл, но обычно **ровно один**: INCY принимает
+`Geositeurl` и `Geoipurl`, и всё. Три файла, как на ноде, туда не положить.
+
+Поэтому CI собирает ещё и `client-geosite.dat` — наши категории плюс все
+категории roscomvpn в одном файле, **29 кодов**:
+
+```
+ADS  ADS-NETWORKS  AI  CONNECTIVITY  RU  SYSTEM  TWITCH-ADS          (наши)
+APPLE  CATEGORY-ADS  CATEGORY-GEOBLOCK-RU  CATEGORY-RU  EPICGAMES
+ESCAPEFROMTARKOV  FACEIT  GITHUB  GOOGLE-DEEPMIND  GOOGLE-PLAY
+MICROSOFT  ORIGIN  PINTEREST  PRIVATE  RIOT  STEAM  TELEGRAM
+TORRENT  TWITCH  WHITELIST  WIN-SPY  YOUTUBE                        (roscomvpn)
+```
+
+Формат `.dat` — это повторяющееся protobuf-поле, поэтому два файла достаточно
+склеить: `tools/datmerge` так и делает. Плюс он **вычитает пересечения**, и вот
+зачем. INCY раскладывает правила не по порядку, а по шести плоским корзинам
+(`DirectSites`, `ProxySites`, `BlockSites` и то же для IP). Приоритет между
+корзинами задать нельзя, поэтому домен, попавший в две категории из разных
+корзин, ведёт себя непредсказуемо. Убираем это на сборке:
+
+```
+-sub APPLE-CONNECTIVITY     captive.apple.com    убран из APPLE       (92 -> 91)
+-sub GOOGLE-PLAY-SYSTEM     пуши FCM             убраны из GOOGLE-PLAY (29 -> 26)
+```
+
+Скачивается так:
+
+```
+https://github.com/Mrzalupa-lolz/geositez/releases/latest/download/client-geosite.dat
+https://github.com/hydraponique/roscomvpn-geoip/releases/latest/download/geoip.dat
+```
+
+Второй — geoip roscomvpn, коды в нём `DIRECT`, `WHITELIST`, `PRIVATE`.
+Пересобирается ежедневно в 04:30 UTC, чтобы не отставать от их релизов.
+
+### Twitch в INCY: одно место, которое вычесть нельзя
+
+`TWITCH-ADS` должен идти в туннель, `TWITCH` — напрямую. Но `gql.twitch.tv` это
+поддомен `twitch.tv`, а операции «кроме» в geosite нет: выкинуть поддомен из
+широкого правила невозможно. В форматах с явным порядком (нода, десктопный
+Xray, mihomo, sing-box) это решается тем, что `TWITCH-ADS` стоит выше. В INCY
+порядка нет — решает приоритет корзин, а он не документирован.
+
+**Как проверить за две минуты.** Добавь `ipify.org` разом в `DirectSites` и в
+`ProxySites`, открой `https://api.ipify.org`:
+
+* показал твой домашний IP → выигрывает `DirectSites`;
+* показал IP ноды → выигрывает `ProxySites`, всё работает как задумано.
+
+**Если выигрывает `DirectSites`**, трюк в INCY не собрать, и надо выбирать:
+
+| что сделать | что получишь |
+|---|---|
+| убрать `geosite:TWITCH` из `DirectSites` | Source есть, но реклама вернётся (сегменты пойдут с зарубежного IP) и видео сожрёт трафик ноды |
+| убрать `geosite:TWITCH-ADS` из `ProxySites` | рекламы нет, но качество урезано до того, что Twitch даёт российским IP |
+| перейти на mihomo / sing-box / десктопный Xray | работает как задумано — там порядок правил задаётся явно |
 
 ### Порядок правил: четыре места, где перестановка ломает всё
 
@@ -357,9 +418,11 @@ bash scripts/refresh-ads-networks.sh
 data/geosite/*.txt                 исходные списки доменов
 tools/geogen/main.go               сборщик .dat (Go, без зависимостей)
 tools/dupcheck/main.go             поиск дубликатов в исходных списках
+tools/datmerge/main.go             склейка .dat для клиентов + вычитание пересечений
 scripts/                           установка на ноду, обновление рекламы
 examples/node-routing.json         серверный роутинг Xray (нода)
 examples/client-routing-xray.json  клиентский роутинг Xray
+examples/client-routing-incy.json  клиентский роутинг INCY
 examples/mihomo-rules.yaml         клиентский роутинг mihomo/Clash.Meta
 examples/singbox-rules.json        клиентский роутинг sing-box
 .github/workflows/                 сборка и публикация

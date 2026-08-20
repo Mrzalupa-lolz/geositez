@@ -3,6 +3,10 @@ name: build geodata
 on:
   # кнопка "Run workflow" во вкладке Actions — собрать когда захочу
   workflow_dispatch:
+  # раз в сутки: чужой geosite обновляется независимо от наших правок
+  schedule:
+    - cron: "30 4 * * *"
+
   # автосборка при правке списков
   push:
     branches: [main, master]
@@ -35,6 +39,18 @@ jobs:
       # ---------- сборка ----------
       - name: Собрать .dat и клиентские списки
         run: go run ./tools/geogen -data data -out dist
+
+      # ---------- клиентский .dat: наш + roscomvpn в одном файле ----------
+      # Клиенты вроде INCY принимают РОВНО ОДИН geosite-файл и раскладывают
+      # правила по плоским корзинам, где порядок задать нельзя. Поэтому здесь
+      # же вычитаем пересечения между категориями — чтобы приоритет корзин
+      # не решал ничего.
+      - name: Собрать client-geosite.dat
+        run: |
+          set -euo pipefail
+          curl -sSfL --retry 3 -o rv-geosite.dat             https://github.com/hydraponique/roscomvpn-geosite/releases/latest/download/geosite.dat
+          go run ./tools/datmerge -out dist/client-geosite.dat             -sub APPLE-CONNECTIVITY -sub GOOGLE-PLAY-SYSTEM             dist/custom-geosite.dat rv-geosite.dat
+          rm -f rv-geosite.dat
 
       # ---------- проверка настоящим Xray ----------
       - name: Проверить .dat реальным Xray-core
@@ -102,7 +118,7 @@ jobs:
             || gh release create latest --title "latest" --notes "$NOTES" --target "$GITHUB_SHA"
           gh release edit latest --notes "$NOTES"
           gh release upload latest \
-            dist/custom-geosite.dat dist/checksums.txt \
+            dist/custom-geosite.dat dist/client-geosite.dat dist/checksums.txt \
             dist/clash/* dist/singbox/* --clobber
 
       - name: Выложить в ветку release (raw + jsDelivr)
@@ -127,6 +143,7 @@ jobs:
             echo "### Ссылки для серверов"
             echo '```'
             echo "https://github.com/${GITHUB_REPOSITORY}/releases/latest/download/custom-geosite.dat"
+            echo "https://github.com/${GITHUB_REPOSITORY}/releases/latest/download/client-geosite.dat"
             echo '```'
             echo "### Зеркала (если GitHub недоступен с сервера)"
             echo '```'
