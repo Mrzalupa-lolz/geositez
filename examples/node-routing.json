@@ -1,8 +1,11 @@
 {
   "_комментарий": [
     "СЕРВЕРНЫЙ роутинг — вставляется в Config Profile ноды в панели Remnawave.",
-    "Работает потому, что custom-geosite.dat / custom-geoip.dat примонтированы",
-    "в /usr/local/share/xray/ на самой ноде (это делает scripts/remnanode-geodata.sh).",
+    "Работает потому, что в /usr/local/share/xray/ на ноде лежат ТРИ файла",
+    "(их кладёт scripts/remnanode-geodata.sh):",
+    "  custom-geosite.dat — наши категории: ADS, SYSTEM, CONNECTIVITY, AI, TWITCH-ADS, RU",
+    "  roscom-geoip.dat   — ~15 000 подсетей РФ/РБ от hydraponique/roscomvpn-geoip",
+    "  roscom-geosite.dat — его же доменные категории (whitelist, category-ru, ...)",
     "Правила проверяются СВЕРХУ ВНИЗ, побеждает первое совпавшее.",
     "Ключи с подчёркиванием — только для чтения, из боевого конфига их убрать."
   ],
@@ -12,6 +15,7 @@
     "rules": [
       {
         "_": "1. проверка связи — сразу наружу, чтобы клиент мерил честный пинг через ноду",
+        "_важно": "обязан быть выше всего остального: captive.apple.com есть и в наших, и в чужих списках",
         "type": "field",
         "domain": ["ext:custom-geosite.dat:CONNECTIVITY"],
         "outboundTag": "DIRECT"
@@ -25,7 +29,7 @@
       {
         "_": "3. локалка и приватные сети — блок, иначе внутрянка утечёт в туннель",
         "type": "field",
-        "ip": ["geoip:private"],
+        "ip": ["geoip:private", "ext:roscom-geoip.dat:private"],
         "outboundTag": "BLOCK"
       },
       {
@@ -36,7 +40,8 @@
         "outboundTag": "DIRECT"
       },
       {
-        "_": "5. всё остальное — наружу",
+        "_": "5. всё остальное — наружу. Сюда же приходит TWITCH-ADS с клиента:",
+        "_twitch": "манифест Twitch должен уйти с зарубежного IP ноды — это и даёт качество Source",
         "type": "field",
         "network": "tcp,udp",
         "outboundTag": "DIRECT"

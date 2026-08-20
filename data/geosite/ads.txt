@@ -11,8 +11,12 @@
 #   * YouTube pre-roll/mid-roll — видеореклама отдаётся с googlevideo.com, того же
 #     хоста, что и само видео. Заблокируешь — умрёт YouTube целиком. Блокируются
 #     только баннеры/трекеры (doubleclick, googlesyndication).
-#   * Twitch — реклама вшита в тот же HLS-поток (SSAI, video-weaver). Домена нет.
-#     countess/spade.twitch.tv трогать не стоит: ломает приложение, рекламу не убирает.
+#   * Twitch — реклама вшита в тот же HLS-поток (SSAI, video-weaver). Домена нет,
+#     блокировкой её не убрать. countess/spade.twitch.tv трогать не стоит: ломает
+#     приложение, рекламу не убирает.
+#     НО есть обход через роутинг, а не через блок: см. twitch-ads.txt (категория
+#     TWITCH-ADS) — запрос токена и манифеста уводится в туннель, реклама не
+#     подставляется, качество Source остаётся.
 #   * Instagram / Facebook лента — реклама приходит тем же graph API, что и посты.
 #   * Spotify аудио-реклама — тот же CDN, что и музыка. Режутся только трекеры.
 #   * Telegram — спонсорские сообщения идут внутри MTProto, отдельного домена нет.
@@ -25,24 +29,11 @@ include:ADS-NETWORKS
 # ---------------------------------------------------------------------------
 # Google / YouTube (баннеры, трекинг, AdMob)
 # ---------------------------------------------------------------------------
-doubleclick.net
-googlesyndication.com
-googleadservices.com
-googletagservices.com
-googletagmanager.com
-google-analytics.com
-analytics.google.com
-adservice.google.com
-admob.com
-app-measurement.com
-2mdn.net
-doubleverify.com
 
 # ---------------------------------------------------------------------------
 # Meta: Facebook / Instagram / WhatsApp
 # an.facebook.com — Audience Network, сторонняя реклама внутри чужих приложений
 # ---------------------------------------------------------------------------
-an.facebook.com
 pixel.facebook.com
 analytics.facebook.com
 # (graph.instagram.com НЕ блокируем — через него идёт вся лента)
@@ -50,55 +41,30 @@ analytics.facebook.com
 # ---------------------------------------------------------------------------
 # Twitter / X
 # ---------------------------------------------------------------------------
-ads-twitter.com
-ads-api.twitter.com
-ads-bidder-api.twitter.com
 analytics.twitter.com
-static.ads-twitter.com
 
 # ---------------------------------------------------------------------------
 # TikTok (включая Pangle — их собственная рекламная сеть)
 # ---------------------------------------------------------------------------
-ads.tiktok.com
-analytics.tiktok.com
-analytics.us.tiktok.com
 ads-sg.tiktok.com
-pangle.io
 pangle-global.io
-pangolin-sdk-toutiao.com
 tiktokpangle-cdn-us.com
-log.tiktokv.com
-log-va.tiktokv.com
-mon.tiktokv.com
 mcs.tiktokv.com
-mcs-va.tiktokv.com
 
 # ---------------------------------------------------------------------------
 # Snapchat — реклама и аналитика приложения
 # snapads.com целиком рекламный, поэтому апексом
 # ---------------------------------------------------------------------------
-snapads.com
-adsapi.snapchat.com
-adserver.snapads.com
-tr.snapchat.com
-tr6.snapchat.com
-app-analytics.snapchat.com
-app-analytics-v2.snapchat.com
-sc-analytics.appspot.com
 
 # ---------------------------------------------------------------------------
 # SoundCloud — промо-треки и событийная телеметрия
 # (аудио-реклама между треками отдаётся с того же CDN, что музыка — не режется)
 # ---------------------------------------------------------------------------
-promoted.soundcloud.com
-events-api.soundcloud.com
 eventlogger.soundcloud.com
 
 # ---------------------------------------------------------------------------
 # Spotify — только трекеры показов рекламы
 # ---------------------------------------------------------------------------
-adeventtracker.spotify.com
-aet.spotify.com
 adstudio.spotify.com
 analytics.spotify.com
 
@@ -108,46 +74,29 @@ analytics.spotify.com
 ads.reddit.com
 events.reddit.com
 alb.reddit.com
-d.reddit.com
 pixel.redditmedia.com
-click.redditmail.com
 
 # ---------------------------------------------------------------------------
 # Amazon / Microsoft / Apple
 # ---------------------------------------------------------------------------
-amazon-adsystem.com
-assoc-amazon.com
-ads.msn.com
-bat.bing.com
 ads.microsoft.com
 iad.apple.com
-iadsdk.apple.com
 
 # ---------------------------------------------------------------------------
 # Яндекс — рекламная сеть, метрика, AppMetrica
 # (mc.yandex.ru — счётчик; блокировка безопасна, ломает только чужую аналитику)
 # ---------------------------------------------------------------------------
 an.yandex.ru
-bs.yandex.ru
 awaps.yandex.net
-adfox.ru
 adfox.yandex.ru
-yandexadexchange.net
-adsdk.yandex.ru
 mc.yandex.ru
 mc.yandex.com
-appmetrica.yandex.com
-appmetrica.yandex.net
 appmetrica.yandex.ru
-banners.mobile.yandex.net
-banners-slb.mobile.yandex.net
-offerwall.yandex.net
 
 # ---------------------------------------------------------------------------
 # VK / Mail.ru / myTarget
 # ---------------------------------------------------------------------------
 ad.mail.ru
-alt-ad.mail.ru
 rs.mail.ru
 top-fwz1.mail.ru
 target.my.com
@@ -159,9 +108,7 @@ tracker.my.com
 # ---------------------------------------------------------------------------
 # Российские рекламные сети и счётчики
 # ---------------------------------------------------------------------------
-adriver.ru
 rutarget.ru
-tns-counter.ru
 mediascope.net
 sape.ru
 luckyads.pro
@@ -177,80 +124,26 @@ adprofy.net
 # ---------------------------------------------------------------------------
 # Мировые рекламные биржи (SSP/DSP) и нативка
 # ---------------------------------------------------------------------------
-adnxs.com
-criteo.com
-criteo.net
-rubiconproject.com
 pubmatic.com
-openx.net
-casalemedia.com
-smartadserver.com
-adsrvr.org
-3lift.com
-sharethrough.com
-teads.tv
-taboola.com
-outbrain.com
-mgid.com
-revcontent.com
 adroll.com
-bidswitch.net
-moatads.com
-adform.net
-adsafeprotected.com
-yieldmo.com
-sonobi.com
-indexww.com
-gumgum.com
-spotxchange.com
-springserve.com
 fwmrm.net
-innovid.com
-zemanta.com
-scorecardresearch.com
-quantserve.com
-quantcast.com
 
 # ---------------------------------------------------------------------------
 # Мобильные ad-SDK (реклама внутри приложений)
 # ---------------------------------------------------------------------------
-applovin.com
 applvn.com
-unityads.unity3d.com
-adcolony.com
-vungle.com
 vungle.io
-chartboost.com
 ironsrc.com
-supersonicads.com
-inmobi.com
-mopub.com
-tapjoy.com
-startappservice.com
-startapp.com
-rayjump.com
-mtgglobals.com
-adsmoloco.com
-liftoff.io
 digitalturbine.com
-fyber.com
 
 # ---------------------------------------------------------------------------
 # Атрибуция и продуктовая аналитика
 # (функциональность приложений не ломает, только статистику владельцев)
 # ---------------------------------------------------------------------------
-appsflyer.com
-adjust.com
 adjust.io
 branch.io
-kochava.com
 singular.net
 amplitude.com
-mixpanel.com
 segment.io
 segment.com
-flurry.com
-hotjar.com
-fullstory.com
-smartlook.com
 clarity.ms

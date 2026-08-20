@@ -28,6 +28,10 @@ jobs:
         with:
           go-version: "1.22"
 
+      # ---------- проверка исходников ----------
+      - name: Проверить списки на дубликаты
+        run: go run ./tools/dupcheck -data data
+
       # ---------- сборка ----------
       - name: Собрать .dat и клиентские списки
         run: go run ./tools/geogen -data data -out dist
@@ -98,7 +102,7 @@ jobs:
             || gh release create latest --title "latest" --notes "$NOTES" --target "$GITHUB_SHA"
           gh release edit latest --notes "$NOTES"
           gh release upload latest \
-            dist/custom-geosite.dat dist/custom-geoip.dat dist/checksums.txt \
+            dist/custom-geosite.dat dist/checksums.txt \
             dist/clash/* dist/singbox/* --clobber
 
       - name: Выложить в ветку release (raw + jsDelivr)
@@ -123,7 +127,6 @@ jobs:
             echo "### Ссылки для серверов"
             echo '```'
             echo "https://github.com/${GITHUB_REPOSITORY}/releases/latest/download/custom-geosite.dat"
-            echo "https://github.com/${GITHUB_REPOSITORY}/releases/latest/download/custom-geoip.dat"
             echo '```'
             echo "### Зеркала (если GitHub недоступен с сервера)"
             echo '```'

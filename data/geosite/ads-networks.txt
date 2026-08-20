@@ -49,7 +49,6 @@
 7cnq.net
 82o9v830.com
 a-ads.com
-a.applvn.com
 a.line.me
 a.mktw.net
 a.sakh.com
@@ -366,7 +365,6 @@ adlog.com.com
 adloox.com
 adlooxtracking.com
 adlure.net
-adm.fwmrm.net
 admailtiser.com
 adman.gr
 adman.otenet.gr
@@ -684,7 +682,6 @@ ads.prisacom.com
 ads.prod.webservices.mozgcp.net
 ads.program3.com
 ads.psd2html.com
-ads.pubmatic.com
 ads.quoka.de
 ads.radio1.lv
 ads.recoletos.es
@@ -1220,20 +1217,16 @@ api.adaether.com
 api.ads.newsdigest.jp
 api.ads.watchabc.go.com
 api.affiliations.site
-api.amplitude.com
 api.analytics.omgpop.com
 api.applovefrom.com
-api.appmetrica.yandex.ru
 api.appnxt.net
 api.apptentive.com
 api.arity.com
-api.branch.io
 api.bridgeoos.com
 api.brs.intl.miui.com
 api.bytebrew.io
 api.data-analytics.pokemon.com
 api.deeplink.dev
-api.eu.amplitude.com
 api.event.appstack.tech
 api.fusepowered.com
 api.gameanalytics.com
@@ -1242,7 +1235,6 @@ api.intensifier.de
 api.iterable.com
 api.itpub.cloud
 api.kameleoon.com
-api.lab.amplitude.com
 api.learnings.ai
 api.mediation.amberweather.com
 api.miui.security.xiaomi.com
@@ -1255,7 +1247,6 @@ api.pingstart.com
 api.reproio.com
 api.rudderlabs.com
 api.sec.miui.com
-api.segment.io
 api.setting.intl.miui.com
 api.share.mob.com
 api.sve.cc
@@ -1264,10 +1255,7 @@ api.telemetry.watchabc.go.com
 api.uca.cloud.unity3d.com
 api.usebutton.com
 api.youngle.tech
-api2.amplitude.com
-api2.branch.io
 api2.wshareit.com
-api3.branch.io
 apis.appnxt.net
 apishow.babybus.com
 apishowstats.babybus.com
@@ -1370,7 +1358,6 @@ attribution.report
 atwola.com
 auctionads.com
 auctionads.net
-aud.pubmatic.com
 audid-api.taobao.com
 audience.media
 audience2media.com
@@ -1519,7 +1506,6 @@ bi-report.maxnapps.com
 bi-tracker-global.rivergame.net
 bi.manhuaren.com
 bi.yeshen.com
-bid.pubmatic.com
 bidbarrel.cbsnews.com
 bidclix.com
 bidclix.net
@@ -1693,10 +1679,8 @@ cdn-ad.wtzw.com
 cdn-api.admost.com
 cdn-image.com
 cdn-ketchapp.akamaized.net
-cdn-rtb.sape.ru
 cdn.appnext.com
 cdn.batmobi.net
-cdn.branch.io
 cdn.freshmarketer.com
 cdn.heapanalytics.com
 cdn.jampp.com
@@ -1704,7 +1688,6 @@ cdn.keywee.co
 cdn.mouseflow.com
 cdn.onesignal.com
 cdn.scarabresearch.com
-cdn.segment.com
 cdn.smalk.ai
 cdnondemand.org
 cdns.lodeo.io
@@ -1819,7 +1802,6 @@ clicksinfo.thefork.co.uk
 clicktag.de
 clickthruserver.com
 clickthrutraffic.com
-clicktrack.pubmatic.com
 clicktrack.ziyu.net
 clicktracks.com
 clicktrade.com
@@ -2025,8 +2007,6 @@ cyberbounty.com
 cyclinghere.com
 d-collect.jennifersoft.com
 d-collector.jennifersoft.com
-d.adroll.com
-d.applvn.com
 d.kugou.com
 d.reddit.com
 d19xf4taj229i8.cloudfront.net
@@ -2628,7 +2608,6 @@ hb-mob2.optiword.com
 hb.afl.rakuten.co.jp
 hb.vntsm.com
 hbb.afl.rakuten.co.jp
-hbopenbid.pubmatic.com
 heap.com
 hellay.net
 hellobar.com
@@ -2717,7 +2696,6 @@ i-mobile.co.jp
 i-vengo.com
 i.isnssdk.com
 i.mxplayer.j2inter.com
-i.singular.net
 i16-tb.isnssdk.com
 i2ad.jp
 i305175.net
@@ -2750,10 +2728,6 @@ ilead.itrack.it
 illustriousoatmeal.com
 ilyonanalytics.herokuapp.com
 im.ov.yahoo.co.jp
-image2.pubmatic.com
-image3.pubmatic.com
-image4.pubmatic.com
-image6.pubmatic.com
 imagecash.net
 images-pw.secureserver.net
 imapi-sg.isnssdk.com
@@ -2963,7 +2937,6 @@ lemmatechnologies.com
 lemnisk.co
 lepodownload.mediatek.com
 lever-analytics.com
-lf-static.tiktokpangle-cdn-us.com
 lfeeder.com
 lfstmedia.com
 lg-release-tracking-8080.gcld-line.com
@@ -3650,7 +3623,6 @@ openad.travelnow.com
 openads.friendfinder.com
 openads.org
 openadsnetwork.com
-openbid.pubmatic.com
 openglass.tv
 openlog.tapapis.cn
 openlog.tapapis.com
@@ -3690,7 +3662,6 @@ overconfidentfood.com
 overkick.com
 overseauspider.yuanshen.com
 overture.com
-ow.pubmatic.com
 owebmoney.ru
 owlsr.us
 owneriq.net
@@ -3993,7 +3964,6 @@ r.msn.com
 r.scoota.co
 r.sibmail.havasit.com
 r0.mail.ru
-r0.mradx.net
 r1.arts-mail.com
 r1.visualwebsiteoptimizer.com
 r2.visualwebsiteoptimizer.com
@@ -4144,7 +4114,6 @@ rqtrk.eu
 rs6.net
 rsc-ads.vidaahub.com
 rsc-mntz.vidaahub.com
-rt.applvn.com
 rta.dailymail.co.uk
 rtag.farmers.com
 rtapi.abbi.io
@@ -4178,7 +4147,6 @@ ruralrobin.com
 ruuaqkw.com
 s-adx.op-mobile.opera.com
 s-odx.oleads.com
-s.adroll.com
 s.dmmew.com
 s.hisp.in
 s.pixsrvcs.com
@@ -4223,7 +4191,6 @@ screechingstocking.com
 screechingstove.com
 screen.buzzvil.com
 scrubswim.com
-sdk-api-v1.singular.net
 sdk-api.kidoz.net
 sdk-log-inter.youdao.com
 sdk-log-upload-os.hoyoverse.com
@@ -4301,7 +4268,6 @@ shiverscissors.com
 shiyifacaisalzc.com
 shockinggrass.com
 shoppingads.com
-showads.pubmatic.com
 shredform.com
 shrillspoon.com
 shxtrk.com
@@ -4328,7 +4294,6 @@ sitescout.com
 sixscissors.com
 sixsigmatraffic.com
 sizmek.com
-skadnetwork.singular.net
 skadsdk.appsflyersdk.com
 skimresources.com
 skisofa.com
@@ -4426,7 +4391,6 @@ srvmath.com
 srvtrck.com
 srwww1.com
 sscefsol.com
-sshowads.pubmatic.com
 sskzlabs.com
 ssl-google-analytics.l.google.com
 ssp-ad.momento.dev
@@ -4434,7 +4398,6 @@ ssp.mediation.trnox.com
 ssp.otm-r.com
 sspapi-prd.samsungrs.com
 st.dynamicyield.com
-st.pubmatic.com
 stack-sonar.com
 stackadapt.com
 stakingsmile.com
@@ -4540,7 +4503,6 @@ stopstomach.com
 storeconfig.mistat.intl.xiaomi.com
 storetail.io
 storygize.net
-strack.pubmatic.com
 straightnest.com
 stream.spongead.com
 stretchsquirrel.com
@@ -4599,7 +4561,6 @@ t.news.browns-restaurants.co.uk
 t.notif-colissimo-laposte.info
 t.pie.org
 t.podcast.co
-t.pubmatic.com
 t.salesmatemail.com
 t.vacations.disneydestinations.com
 t.visit.disneydestinations.com
@@ -4824,7 +4785,6 @@ track.nationalgunrights.org
 track.onef.pro
 track.pingstart.com
 track.privacyatclearbit.com
-track.pubmatic.com
 track.segmetrics.io
 track.smtpmessage.com
 track.software-codes.com
@@ -5103,7 +5063,6 @@ veta.naver.com
 vgnp3trk.com
 vgs-collect-keeper.apps.verygood.systems
 vibrantsundown.com
-vid.pubmatic.com
 vidcpm.com
 video-stats.video.google.com
 videoadex.com

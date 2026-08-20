@@ -1,19 +1,30 @@
 {
   "_комментарий": [
     "КЛИЕНТСКИЙ роутинг для sing-box (Happ, sing-box, NekoBox).",
-    "Списки те же самые, но в бинарном формате .srs — их собирает workflow.",
-    "Ссылки уже указывают на github.com/Mrzalupa-lolz/geositez.",
-    "Правила проверяются сверху вниз; CONNECTIVITY должен идти первым."
+    "geositez-* — наши списки (политика), roscom-* — hydraponique/roscomvpn-* (инвентарь РФ/РБ).",
+    "Правила проверяются сверху вниз. Порядок критичен в трёх местах:",
+    "  1. connectivity первым — иначе captive.apple.com уедет в direct;",
+    "  2. twitch-ads выше twitch — gql.twitch.tv это поддомен twitch.tv;",
+    "  3. ads выше whitelist — mradx.net у них direct, у нас block."
   ],
   "route": {
     "rules": [
       { "rule_set": "geositez-connectivity", "outbound": "proxy" },
       { "rule_set": "geositez-ads", "outbound": "block" },
+
+      { "rule_set": "geositez-twitch-ads", "outbound": "proxy" },
+      { "rule_set": "roscom-twitch", "outbound": "direct" },
+
       { "rule_set": "geositez-system", "outbound": "direct" },
-      { "rule_set": "geositez-ru", "outbound": "direct" },
-      { "rule_set": "geositez-ru-ip", "outbound": "direct" },
-      { "domain_suffix": [".ru", ".su", ".xn--p1ai"], "outbound": "direct" },
+
+      { "rule_set": "roscom-geoblock", "outbound": "proxy" },
       { "rule_set": "geositez-ai", "outbound": "proxy" },
+
+      { "rule_set": "geositez-ru", "outbound": "direct" },
+      { "rule_set": "roscom-whitelist", "outbound": "direct" },
+      { "rule_set": "roscom-direct-ip", "outbound": "direct" },
+
+      { "domain_suffix": [".ru", ".su", ".xn--p1ai"], "outbound": "direct" },
       { "ip_is_private": true, "outbound": "direct" }
     ],
     "rule_set": [
@@ -30,14 +41,6 @@
         "type": "remote",
         "format": "binary",
         "url": "https://github.com/Mrzalupa-lolz/geositez/releases/latest/download/site-ru.srs",
-        "download_detour": "direct",
-        "update_interval": "24h"
-      },
-      {
-        "tag": "geositez-ru-ip",
-        "type": "remote",
-        "format": "binary",
-        "url": "https://github.com/Mrzalupa-lolz/geositez/releases/latest/download/ip-ru-ip.srs",
         "download_detour": "direct",
         "update_interval": "24h"
       },
@@ -62,6 +65,46 @@
         "type": "remote",
         "format": "binary",
         "url": "https://github.com/Mrzalupa-lolz/geositez/releases/latest/download/site-ai.srs",
+        "download_detour": "direct",
+        "update_interval": "24h"
+      },
+      {
+        "tag": "geositez-twitch-ads",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://github.com/Mrzalupa-lolz/geositez/releases/latest/download/site-twitch-ads.srs",
+        "download_detour": "direct",
+        "update_interval": "24h"
+      },
+      {
+        "tag": "roscom-direct-ip",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://cdn.jsdelivr.net/gh/hydraponique/roscomvpn-geoip/release/sing-box/direct.srs",
+        "download_detour": "direct",
+        "update_interval": "24h"
+      },
+      {
+        "tag": "roscom-whitelist",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://cdn.jsdelivr.net/gh/hydraponique/roscomvpn-geosite/release/sing-box/whitelist.srs",
+        "download_detour": "direct",
+        "update_interval": "24h"
+      },
+      {
+        "tag": "roscom-geoblock",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://cdn.jsdelivr.net/gh/hydraponique/roscomvpn-geosite/release/sing-box/category-geoblock-ru.srs",
+        "download_detour": "direct",
+        "update_interval": "24h"
+      },
+      {
+        "tag": "roscom-twitch",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://cdn.jsdelivr.net/gh/hydraponique/roscomvpn-geosite/release/sing-box/twitch.srs",
         "download_detour": "direct",
         "update_interval": "24h"
       }

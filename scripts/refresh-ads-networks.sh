@@ -101,6 +101,9 @@ with open(out, "w", encoding="utf-8", newline="\n") as f:
 print("готово:", len(final), "доменов ->", out)
 PY
 
+echo "==> ищу дубликаты (импорт мог принести то, что уже есть в ads.txt)"
+go run ./tools/dupcheck -data data || echo "^ подчистить одной командой: go run ./tools/dupcheck -fix"
+
 echo "==> проверяю сборку"
 go run ./tools/geogen -data data -out dist >/dev/null
 echo "OK. Не забудь: git add data && git commit && git push"

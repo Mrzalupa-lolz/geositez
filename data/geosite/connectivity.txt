@@ -14,7 +14,6 @@
 # --- Microsoft NCSI (Windows) ---
 msftconnecttest.com
 msftncsi.com
-dns.msftncsi.com
 
 # --- Apple (macOS/iOS captive portal) ---
 captive.apple.com

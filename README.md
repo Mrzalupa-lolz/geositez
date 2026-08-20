@@ -1,15 +1,22 @@
 # geositez
 
 Свои `.dat` файлы для Xray-core: пишешь домены в обычный `.txt`, GitHub Actions
-компилирует их в `custom-geosite.dat` / `custom-geoip.dat`, ноды на серверах сами
-подтягивают свежую версию, а клиенты забирают те же списки в своих форматах.
+компилирует их в `custom-geosite.dat`, ноды на серверах сами подтягивают свежую
+версию, а клиенты забирают те же списки в своих форматах.
+
+**Здесь только политика роутинга — что блокировать, что вести мимо VPN.**
+Массовые списки РФ/РБ (десятки тысяч подсетей и доменов) не ведутся вручную,
+а берутся готовыми из [roscomvpn-geoip](https://github.com/hydraponique/roscomvpn-geoip)
+и [roscomvpn-geosite](https://github.com/hydraponique/roscomvpn-geosite).
 
 ```
-data/geosite/ads.txt   ──┐
-data/geosite/ru.txt      │   go run ./tools/geogen      ┌─► custom-geosite.dat ─► нода (ext:)
-data/geosite/system.txt  ├──────── GitHub Actions ──────┤─► custom-geoip.dat  ─► нода (ext:)
-data/geoip/ru-ip.txt   ──┘                              ├─► clash/*.txt       ─► mihomo
-                                                        └─► singbox/*.srs     ─► sing-box/Happ
+data/geosite/ads.txt      ──┐
+data/geosite/system.txt     │  go run ./tools/geogen   ┌─► custom-geosite.dat ─► нода (ext:)
+data/geosite/twitch-ads.txt ├────── GitHub Actions ────┤─► clash/*.txt        ─► mihomo
+data/geosite/ru.txt       ──┘                          └─► singbox/*.srs      ─► sing-box/Happ
+
+                             roscomvpn-geoip   ─► roscom-geoip.dat   ─┐
+                             roscomvpn-geosite ─► roscom-geosite.dat ─┴─► та же нода
 ```
 
 ---
@@ -42,14 +49,57 @@ https://site.com/path/?a=1  # можно вставить и ссылку — в
 |---|---|---|---|
 | `ADS` | `data/geosite/ads.txt` | реклама и трекеры по площадкам + `ADS-NETWORKS` | **BLOCK** |
 | `ADS-NETWORKS` | `data/geosite/ads-networks.txt` | ~5300 доменов рекламных сетей и мобильных ad-SDK | подмешан в `ADS` |
-| `RU` | `data/geosite/ru.txt` | российские сервисы **вне** зон `.ru/.su/.рф` | DIRECT (клиент) |
+| `RU` | `data/geosite/ru.txt` | добавка: российские сервисы вне зон `.ru/.su/.рф`, которых нет у roscomvpn | DIRECT (клиент) |
 | `SYSTEM` | `data/geosite/system.txt` | пуши APNs/FCM, обновления ОС, NTP, OCSP | DIRECT (клиент) |
 | `CONNECTIVITY` | `data/geosite/connectivity.txt` | проверка интернета (NCSI, captive portal) | клиент → VPN, нода → DIRECT |
 | `AI` | `data/geosite/ai.txt` | сервисы, режущие по IP ноды | отдельный чистый outbound |
-| `RU-IP` | `data/geoip/ru-ip.txt` | сети Яндекса и VK | DIRECT (клиент) |
+| `TWITCH-ADS` | `data/geosite/twitch-ads.txt` | токен и манифест Twitch — Source без рекламы | **В ТУННЕЛЬ** (клиент) |
 
 Зоны `.ru`, `.su`, `.рф` в списки **не входят** — они ловятся регулярками на
 клиенте, перечислять их поштучно бессмысленно.
+
+### Разделение труда с roscomvpn
+
+Всё, что можно взять готовым и свежим, берётся готовым:
+
+| | ведём мы | берём у roscomvpn |
+|---|---|---|
+| подсети РФ/РБ | — | `roscom-geoip.dat`, ~15 000 CIDR, пересборка ежедневно |
+| массовые домены РФ | — | `whitelist`, `category-ru` |
+| сайты, режущие РФ-IP | — | `category-geoblock-ru` (им нужен туннель, а не direct) |
+| посервисные списки | — | `apple`, `microsoft`, `steam`, `telegram`, `youtube`, ... |
+| реклама и трекеры | `ADS` + `ADS-NETWORKS`, ~5500 доменов | у них `category-ads` — 2 домена, это не список блокировки |
+| системные домены | `SYSTEM` (пуши, обновления, NTP, OCSP) | категории нет |
+| проверка связи | `CONNECTIVITY` | категории нет |
+| чистый outbound для AI | `AI` | нет (у них это часть `category-geoblock-ru` → просто в туннель) |
+| Twitch без рекламы | `TWITCH-ADS` | есть `twitch-ads`, наш список — его копия |
+
+Проверить, не появилось ли у них то, что мы ведём руками (и выкинуть из наших
+списков), можно сравнением `data/geosite/*.txt` с их `data/*`.
+
+**О чём помнить:** их `geoip` пересобирается ежедневно, а `geosite` — только по
+пушу в репозиторий, и на момент написания последняя сборка была от 15 апреля
+2026. IP-часть свежая, доменная может отставать. Плюс это чужой репозиторий:
+если он исчезнет, отвалится массовый RU-роутинг, а наши `ADS`/`SYSTEM`/
+`CONNECTIVITY` продолжат работать — ради этого свой сборщик и остаётся.
+
+### Twitch: Source без рекламы
+
+Реклама Twitch вшита в HLS-поток (SSAI), своего домена у неё нет — блокировкой
+не убрать. Но запросы, от гео которых зависит выдача, живут на разных хостах,
+и их разводят по разным маршрутам:
+
+| что | куда | зачем |
+|---|---|---|
+| `gql.twitch.tv`, `usher.ttvnw.net`, `playlist.ttvnw.net` (`TWITCH-ADS`) | **в туннель** | с зарубежного IP Twitch отдаёт полную лестницу качества, включая Source |
+| `twitch.tv`, `video-weaver`, `*.cloudfront.net` (категория `twitch` у roscomvpn) | **напрямую** | рекламного инвентаря на РФ нет — вставлять в поток нечего, и видео не жрёт трафик ноды |
+
+Ломается любая из половин: уведёшь видео в туннель — вернётся реклама,
+оставишь манифест напрямую — вернётся резаное качество.
+
+**Правило `TWITCH-ADS` обязано стоять выше правила на `twitch`**: `gql.twitch.tv`
+— поддомен `twitch.tv`, и общее правило перехватит его первым. Готовый порядок —
+в `examples/mihomo-rules.yaml` и `examples/singbox-rules.json`.
 
 ---
 
@@ -69,6 +119,35 @@ go run ./tools/geogen -data data -out dist
 Сборка падает с понятной ошибкой, если в списке опечатка — битый файл до
 серверов не доедет. В CI дополнительно скачивается настоящий Xray-core и
 конфиг с ссылками на **каждую** категорию прогоняется через `xray run -test`.
+
+### Проверка на дубликаты
+
+Чтобы лишние строки не доживали до `.dat`, они вычищаются в исходниках:
+
+```bash
+go run ./tools/dupcheck          # показать и вернуть код 1, если что-то нашлось
+go run ./tools/dupcheck -fix     # удалить найденное прямо в .txt
+go run ./tools/dupcheck -cross   # + записи, попавшие сразу в РАЗНЫЕ категории
+```
+
+Что считается лишним (строку разбирает та же логика, что и сборщик):
+
+| находка | пример |
+|---|---|
+| точный повтор | `pubmatic.com` дважды, в том числе через `include:` |
+| поддомен под доменом | `ads.pubmatic.com` при наличии `pubmatic.com` |
+| `full:` под доменом | `full:foo.com` при наличии `foo.com` |
+| что угодно под `keyword:` | `evil.tracker.com` при наличии `keyword:track` |
+| подсеть внутри сети | `10.1.2.0/24` внутри `10.1.0.0/16` |
+| повторный `include:` | две строки `include:ADS-NETWORKS` |
+
+Порядок строк в файле не важен: остаётся более широкое правило, даже если оно
+идёт ниже. `-fix` не трогает строку, у которой есть свой `@атрибут`, — там
+удаление меняло бы поведение, решай руками. Проверка стоит первым шагом в CI,
+так что дубликаты не пройдут в сборку молча.
+
+`-cross` — не про дубликаты, а про конфликты роутинга: один домен в `ADS`
+(в блок) и в `RU` (в direct) — сработает то правило, что стоит выше.
 
 ### Что появляется на выходе
 
@@ -105,7 +184,9 @@ REPO=Mrzalupa-lolz/geositez sudo -E ./remnanode-geodata.sh install
 
 Скрипт:
 
-1. кладёт `.dat` в `/opt/remnanode/geodata/`;
+1. кладёт три файла в `/opt/remnanode/geodata/` — наш `custom-geosite.dat`
+   плюс `roscom-geoip.dat` и `roscom-geosite.dat` (имена нарочно не
+   `geoip.dat`/`geosite.dat`, чтобы не затереть штатные ассеты Xray);
 2. показывает, какие строки добавить в `docker-compose.yml` (монтировать нужно
    **по одному файлу**, том на всю папку затрёт дефолтные `geosite.dat`/`geoip.dat`);
 3. ставит systemd-таймер `remnanode-geodata.timer` — раз в час проверяет релиз,
@@ -209,8 +290,8 @@ bash scripts/refresh-ads-networks.sh
 
 ```
 data/geosite/*.txt        исходные списки доменов
-data/geoip/*.txt          исходные списки сетей
 tools/geogen/main.go      сборщик .dat (Go, без зависимостей)
+tools/dupcheck/main.go    поиск дубликатов в исходных списках
 scripts/                  установка на ноду, обновление рекламного списка
 examples/                 готовые куски роутинга
 .github/workflows/        сборка и публикация
@@ -218,10 +299,22 @@ examples/                 готовые куски роутинга
 
 ## 7. Грабли
 
-1. **Порядок правил.** Первое совпавшее выигрывает. `CONNECTIVITY` — выше `SYSTEM`.
+1. **Порядок правил.** Первое совпавшее выигрывает. Три места, где это решает всё:
+   `CONNECTIVITY` выше `SYSTEM` и чужого `apple` (иначе `captive.apple.com` уедет
+   в direct); `TWITCH-ADS` выше `twitch` (иначе вернётся реклама); `ADS` выше
+   чужого `whitelist` (иначе `mradx.net` пойдёт в direct вместо блока).
 2. **Домен без префикса в конфиге Xray** это `keyword`, а не домен. В наших
    `.txt` наоборот — дефолт `domain:`, так удобнее.
 3. **Не монтировать папку целиком** в `/usr/local/share/xray/` — затрёт штатные файлы.
 4. **Приватный репозиторий** = ноды не скачают файлы (нужен токен).
 5. **Пустая категория** пропускается со предупреждением, а правило `ext:` на неё
    уронит конфиг ноды — не оставляй пустых файлов.
+6. **Чужие категории — чужая политика.** У roscomvpn `google-play` идёт в туннель,
+   а там `mtalk.google.com` (пуши FCM), который у нас в `SYSTEM` на direct. Наши
+   правила должны стоять выше, иначе пуши поедут через VPN и будут отваливаться
+   при каждом реконнекте.
+7. **Не копируй их списки к себе.** Скопированное перестаёт обновляться и сразу
+   начинает конфликтовать: в чужом `apple`, например, лежат и `captive.apple.com`
+   (это наш `CONNECTIVITY`), и рекламные `iad.apple.com`/`iadsdk.apple.com`
+   (это наш `ADS`). Подключай их файл целиком и ссылайся на категорию через
+   `ext:roscom-geosite.dat:apple`.

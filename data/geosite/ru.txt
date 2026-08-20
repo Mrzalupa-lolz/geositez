@@ -3,82 +3,67 @@
 #  В роутинге:  "ext:custom-geosite.dat:RU"  ->  outbound "direct"
 # ============================================================================
 #
+#  ЭТОТ СПИСОК — ТОЛЬКО ДОБАВКА. Массовый RU-роутинг делает roscomvpn-geoip
+#  (~15 000 подсетей, пересборка ежедневно) и roscomvpn-geosite (whitelist,
+#  category-ru). Здесь остаётся лишь то, чего у них нет — иначе мы вручную
+#  ведём инвентарь, который кто-то уже ведёт машиной.
+#
 #  ЗДЕСЬ НЕТ доменов в зонах .ru / .su / .рф — они ловятся регулярками
 #  на стороне клиента (их бессмысленно перечислять поштучно):
 #
 #      "regexp:.*\\.ru$", "regexp:.*\\.su$", "regexp:.*\\.xn--p1ai$"
 #
-#  Поэтому ниже — только российские сервисы, живущие в ЧУЖИХ зонах
-#  (.com/.net/.tv/.me/...), которые regexp'ом не поймать.
+#  Поэтому ниже — только российские сервисы в ЧУЖИХ зонах (.com/.net/.tv/.me),
+#  которых нет ни в regexp, ни в списках roscomvpn.
+#
+#  Проверить, не появилось ли что-то из этого у них (и выкинуть отсюда):
+#      go run ./tools/dupcheck   — про наши списки
+#      сравнение с roscomvpn     — см. README, раздел «Разделение труда»
+#
+#  СОЗНАТЕЛЬНО УБРАНЫ ОТСЮДА:
+#   * habr.com, habrastorage.org — у roscomvpn они в category-geoblock-ru:
+#     Хабр режет функционал российским IP, ему место В ТУННЕЛЕ, а не в direct;
+#   * mradx.net — рекламный CDN Mail.ru, живёт в ads.txt (BLOCK).
+#     У roscomvpn он в whitelist (direct) — наше правило ADS должно стоять выше.
 
-# --- Яндекс (вся экосистема: поиск, карты, музыка, диск, облако) ---
-yandex.net
-yandex.com
-yandex.com.tr
-yastatic.net
-yastat.net
-yandexcloud.net
+# --- Яндекс (короткие домены вне их whitelist) ---
 ya.cc
 yadi.sk
-yandex.st
-yandex.eu
 
-# --- VK / Одноклассники / Mail.ru (CDN и API вне .ru) ---
-vk.com
-vk.me
-vk-cdn.net
-vk-portal.net
-vkuser.net
-vkuservideo.net
-vkuseraudio.net
-vkuserlive.net
+# --- VK / Mail.ru ---
 vkcdn.io
-userapi.com
-mycdn.me
 my.com
-mradx.net
-okcdn.ru
 
 # --- Мессенджеры и корпоративные сервисы РФ ---
 express.ms
 public.express
 corp.express
-tamtam.chat
 icq.com
-biz.mail.ru
 
-# --- Хабр, медиа, справочники ---
-habr.com
-habrastorage.org
+# --- Медиа и справочники ---
 habrcdn.net
 nplus1.news
 meduza.io
-2gis.com
 2gis.io
-moex.com
 qms.io
 
 # --- Онлайн-кинотеатры и музыка (вне .ru) ---
-okko.tv
 more.tv
 premier.one
 kion.tv
 zvuk.com
 sber-zvuk.com
 
-# --- Банки, платежи, госуслуги (вне .ru) ---
+# --- Банки и платежи (вне .ru) ---
 sberbank.com
 sber.pro
 sberdevices.com
-alfabank.com
-vtb.com
 raiffeisen.com
 qiwi.com
 tbank.tech
 mironline.io
 
 # --- Безопасность и софт ---
-kaspersky.com
 kaspersky-labs.com
 kasperskysecurity.com
 drweb.com
@@ -90,14 +75,13 @@ cs-cart.com
 # --- Хостинг / CDN / инфраструктура ---
 selectel.com
 selcdn.net
-timeweb.cloud
 vscale.io
 ngenix.net
 cdnvideo.net
 t1.cloud
 mts.io
 
-# --- Игры и прочее ---
+# --- Игры ---
 wargaming.net
 lesta.games
 gaijin.net
