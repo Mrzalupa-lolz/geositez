@@ -2,41 +2,21 @@
 #  КЛИЕНТСКИЙ роутинг для mihomo / Clash.Meta (шаблон подписки Remnawave).
 #
 #  Два источника правил:
-#    geositez-*  — наши списки (политика: что блокировать, что мимо VPN).
-#    roscom-*    — hydraponique/roscomvpn-* (инвентарь: подсети и домены РФ/РБ).
-#  Клиент не умеет читать .dat, поэтому оба забираются как rule-provider'ы.
+#    geositez-*  — наши списки (политика: что блокировать, что вести мимо VPN).
+#    rv-*        — hydraponique/roscomvpn-* (инвентарь: подсети и домены РФ/РБ).
+#
+#  Полная раскладка «какой набор куда» — в README.
+#
+#  ВАЖНО: geositez-ads уже содержит ADS-NETWORKS (список подмешан через
+#  include: при сборке), отдельный провайдер для него не нужен.
+#
+#  Провайдеров здесь 29 — это 29 скачиваний при первом старте. Если для
+#  мобильного клиента много, выкинь игровые (rv-steam, rv-epicgames, rv-riot,
+#  rv-origin, rv-eft, rv-faceit): без них игры просто пойдут в туннель.
 # ============================================================================
 
 rule-providers:
-  # ---------- наши списки ----------
-  # реклама -> REJECT
-  geositez-ads:
-    type: http
-    behavior: classical
-    format: text
-    interval: 86400
-    url: "https://github.com/Mrzalupa-lolz/geositez/releases/latest/download/site-ads.txt"
-    path: ./ruleset/geositez-ads.txt
-
-  # российские сервисы, которых нет у roscomvpn -> DIRECT
-  geositez-ru:
-    type: http
-    behavior: classical
-    format: text
-    interval: 86400
-    url: "https://github.com/Mrzalupa-lolz/geositez/releases/latest/download/site-ru.txt"
-    path: ./ruleset/geositez-ru.txt
-
-  # системные домены (пуши, обновления, время, OCSP) -> DIRECT
-  geositez-system:
-    type: http
-    behavior: classical
-    format: text
-    interval: 86400
-    url: "https://github.com/Mrzalupa-lolz/geositez/releases/latest/download/site-system.txt"
-    path: ./ruleset/geositez-system.txt
-
-  # проверка связи -> В ТУННЕЛЬ (нода отправит их в direct)
+  # ─────────── наши списки ───────────
   geositez-connectivity:
     type: http
     behavior: classical
@@ -45,16 +25,14 @@ rule-providers:
     url: "https://github.com/Mrzalupa-lolz/geositez/releases/latest/download/site-connectivity.txt"
     path: ./ruleset/geositez-connectivity.txt
 
-  # сервисы, режущие по IP сервера
-  geositez-ai:
+  geositez-ads:
     type: http
     behavior: classical
     format: text
     interval: 86400
-    url: "https://github.com/Mrzalupa-lolz/geositez/releases/latest/download/site-ai.txt"
-    path: ./ruleset/geositez-ai.txt
+    url: "https://github.com/Mrzalupa-lolz/geositez/releases/latest/download/site-ads.txt"
+    path: ./ruleset/geositez-ads.txt
 
-  # токен и манифест Twitch -> В ТУННЕЛЬ (см. data/geosite/twitch-ads.txt)
   geositez-twitch-ads:
     type: http
     behavior: classical
@@ -63,76 +41,287 @@ rule-providers:
     url: "https://github.com/Mrzalupa-lolz/geositez/releases/latest/download/site-twitch-ads.txt"
     path: ./ruleset/geositez-twitch-ads.txt
 
-  # ---------- чужие списки: массовый РФ/РБ ----------
-  # ~15 000 подсетей РФ/РБ, пересборка ежедневно
-  roscom-direct-ip:
+  geositez-system:
     type: http
-    behavior: ipcidr
-    format: mrs
+    behavior: classical
+    format: text
     interval: 86400
-    url: "https://cdn.jsdelivr.net/gh/hydraponique/roscomvpn-geoip/release/mihomo/direct.mrs"
-    path: ./ruleset/roscom-direct-ip.mrs
+    url: "https://github.com/Mrzalupa-lolz/geositez/releases/latest/download/site-system.txt"
+    path: ./ruleset/geositez-system.txt
 
-  # российские домены и сервисы
-  roscom-whitelist:
+  geositez-ai:
+    type: http
+    behavior: classical
+    format: text
+    interval: 86400
+    url: "https://github.com/Mrzalupa-lolz/geositez/releases/latest/download/site-ai.txt"
+    path: ./ruleset/geositez-ai.txt
+
+  geositez-ru:
+    type: http
+    behavior: classical
+    format: text
+    interval: 86400
+    url: "https://github.com/Mrzalupa-lolz/geositez/releases/latest/download/site-ru.txt"
+    path: ./ruleset/geositez-ru.txt
+
+  # ─────────── roscomvpn: домены ───────────
+  rv-win-spy:
     type: http
     behavior: domain
     format: mrs
     interval: 86400
-    url: "https://cdn.jsdelivr.net/gh/hydraponique/roscomvpn-geosite/release/mihomo/whitelist.mrs"
-    path: ./ruleset/roscom-whitelist.mrs
+    url: "https://cdn.jsdelivr.net/gh/hydraponique/roscomvpn-geosite/release/mihomo/win-spy.mrs"
+    path: ./ruleset/rv-win-spy.mrs
 
-  # сайты, которые режут функционал российским IP -> ИМ НУЖЕН ТУННЕЛЬ
-  roscom-geoblock:
-    type: http
-    behavior: domain
-    format: mrs
-    interval: 86400
-    url: "https://cdn.jsdelivr.net/gh/hydraponique/roscomvpn-geosite/release/mihomo/category-geoblock-ru.mrs"
-    path: ./ruleset/roscom-geoblock.mrs
-
-  # сам Twitch (без токена/манифеста) -> DIRECT, чтобы видео не жрало трафик ноды
-  roscom-twitch:
+  rv-twitch:
     type: http
     behavior: domain
     format: mrs
     interval: 86400
     url: "https://cdn.jsdelivr.net/gh/hydraponique/roscomvpn-geosite/release/mihomo/twitch.mrs"
-    path: ./ruleset/roscom-twitch.mrs
+    path: ./ruleset/rv-twitch.mrs
 
-# ---------------------------------------------------------------------------
-# ПОРЯДОК ВАЖЕН: первое совпавшее правило выигрывает. Три места, где порядок
-# решает всё:
-#   1. CONNECTIVITY выше SYSTEM/RU/whitelist — иначе captive.apple.com уедет
-#      в DIRECT и пинг будет мериться мимо VPN.
-#   2. TWITCH-ADS выше twitch и выше DOMAIN-REGEX .tv — gql.twitch.tv это
-#      поддомен twitch.tv, и общее правило перехватит его первым.
-#   3. ADS выше whitelist — mradx.net (рекламный CDN Mail.ru) у них в
-#      whitelist на DIRECT, у нас в ADS на REJECT. Хотим REJECT.
-# ---------------------------------------------------------------------------
+  rv-geoblock:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    url: "https://cdn.jsdelivr.net/gh/hydraponique/roscomvpn-geosite/release/mihomo/category-geoblock-ru.mrs"
+    path: ./ruleset/rv-geoblock.mrs
+
+  rv-deepmind:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    url: "https://cdn.jsdelivr.net/gh/hydraponique/roscomvpn-geosite/release/mihomo/google-deepmind.mrs"
+    path: ./ruleset/rv-deepmind.mrs
+
+  rv-youtube:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    url: "https://cdn.jsdelivr.net/gh/hydraponique/roscomvpn-geosite/release/mihomo/youtube.mrs"
+    path: ./ruleset/rv-youtube.mrs
+
+  rv-telegram:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    url: "https://cdn.jsdelivr.net/gh/hydraponique/roscomvpn-geosite/release/mihomo/telegram.mrs"
+    path: ./ruleset/rv-telegram.mrs
+
+  rv-github:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    url: "https://cdn.jsdelivr.net/gh/hydraponique/roscomvpn-geosite/release/mihomo/github.mrs"
+    path: ./ruleset/rv-github.mrs
+
+  rv-google-play:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    url: "https://cdn.jsdelivr.net/gh/hydraponique/roscomvpn-geosite/release/mihomo/google-play.mrs"
+    path: ./ruleset/rv-google-play.mrs
+
+  rv-pinterest:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    url: "https://cdn.jsdelivr.net/gh/hydraponique/roscomvpn-geosite/release/mihomo/pinterest.mrs"
+    path: ./ruleset/rv-pinterest.mrs
+
+  rv-whitelist:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    url: "https://cdn.jsdelivr.net/gh/hydraponique/roscomvpn-geosite/release/mihomo/whitelist.mrs"
+    path: ./ruleset/rv-whitelist.mrs
+
+  rv-category-ru:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    url: "https://cdn.jsdelivr.net/gh/hydraponique/roscomvpn-geosite/release/mihomo/category-ru.mrs"
+    path: ./ruleset/rv-category-ru.mrs
+
+  rv-apple:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    url: "https://cdn.jsdelivr.net/gh/hydraponique/roscomvpn-geosite/release/mihomo/apple.mrs"
+    path: ./ruleset/rv-apple.mrs
+
+  rv-microsoft:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    url: "https://cdn.jsdelivr.net/gh/hydraponique/roscomvpn-geosite/release/mihomo/microsoft.mrs"
+    path: ./ruleset/rv-microsoft.mrs
+
+  rv-steam:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    url: "https://cdn.jsdelivr.net/gh/hydraponique/roscomvpn-geosite/release/mihomo/steam.mrs"
+    path: ./ruleset/rv-steam.mrs
+
+  rv-epicgames:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    url: "https://cdn.jsdelivr.net/gh/hydraponique/roscomvpn-geosite/release/mihomo/epicgames.mrs"
+    path: ./ruleset/rv-epicgames.mrs
+
+  rv-riot:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    url: "https://cdn.jsdelivr.net/gh/hydraponique/roscomvpn-geosite/release/mihomo/riot.mrs"
+    path: ./ruleset/rv-riot.mrs
+
+  rv-origin:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    url: "https://cdn.jsdelivr.net/gh/hydraponique/roscomvpn-geosite/release/mihomo/origin.mrs"
+    path: ./ruleset/rv-origin.mrs
+
+  rv-eft:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    url: "https://cdn.jsdelivr.net/gh/hydraponique/roscomvpn-geosite/release/mihomo/escapefromtarkov.mrs"
+    path: ./ruleset/rv-eft.mrs
+
+  rv-faceit:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    url: "https://cdn.jsdelivr.net/gh/hydraponique/roscomvpn-geosite/release/mihomo/faceit.mrs"
+    path: ./ruleset/rv-faceit.mrs
+
+  rv-torrent:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    url: "https://cdn.jsdelivr.net/gh/hydraponique/roscomvpn-geosite/release/mihomo/torrent.mrs"
+    path: ./ruleset/rv-torrent.mrs
+
+  rv-private-domain:
+    type: http
+    behavior: domain
+    format: mrs
+    interval: 86400
+    url: "https://cdn.jsdelivr.net/gh/hydraponique/roscomvpn-geosite/release/mihomo/private.mrs"
+    path: ./ruleset/rv-private-domain.mrs
+
+  # ─────────── roscomvpn: подсети ───────────
+  rv-ip-direct:
+    type: http
+    behavior: ipcidr
+    format: mrs
+    interval: 86400
+    url: "https://cdn.jsdelivr.net/gh/hydraponique/roscomvpn-geoip/release/mihomo/direct.mrs"
+    path: ./ruleset/rv-ip-direct.mrs
+
+  rv-ip-whitelist:
+    type: http
+    behavior: ipcidr
+    format: mrs
+    interval: 86400
+    url: "https://cdn.jsdelivr.net/gh/hydraponique/roscomvpn-geoip/release/mihomo/whitelist.mrs"
+    path: ./ruleset/rv-ip-whitelist.mrs
+
+  rv-ip-private:
+    type: http
+    behavior: ipcidr
+    format: mrs
+    interval: 86400
+    url: "https://cdn.jsdelivr.net/gh/hydraponique/roscomvpn-geoip/release/mihomo/private.mrs"
+    path: ./ruleset/rv-ip-private.mrs
+
+# ===========================================================================
+#  ПОРЯДОК. Первое совпавшее правило выигрывает. Четыре места, где перестановка
+#  ломает схему молча — без ошибок в логах, просто перестаёт работать:
+#
+#   1. connectivity ВЫШЕ rv-apple  — captive.apple.com лежит в их apple (DIRECT).
+#   2. twitch-ads   ВЫШЕ rv-twitch — gql.twitch.tv это поддомен twitch.tv.
+#   3. system       ВЫШЕ rv-google-play — там mtalk.google.com, пуши FCM.
+#   4. rv-geoblock  ВЫШЕ regex .ru — внутри habr.com и 4pda.ru.
+#
+#  Плюс ads выше rv-whitelist: mradx.net у них DIRECT, у нас REJECT.
+# ===========================================================================
 rules:
+  # 1-3: проверка связи и мусор
   - RULE-SET,geositez-connectivity,🚀 VPN
   - RULE-SET,geositez-ads,REJECT
+  - RULE-SET,rv-win-spy,REJECT
 
-  # Twitch: манифест в туннель, само видео напрямую — Source без рекламы
+  # 4-5: Twitch — манифест в туннель, видео напрямую (Source без рекламы)
   - RULE-SET,geositez-twitch-ads,🚀 VPN
-  - RULE-SET,roscom-twitch,DIRECT
+  - RULE-SET,rv-twitch,DIRECT
 
+  # 6: пуши, обновления ОС, NTP, OCSP — строго мимо VPN
   - RULE-SET,geositez-system,DIRECT
 
-  # сайты, режущие российские IP, — раньше любых DIRECT-правил на .ru
-  - RULE-SET,roscom-geoblock,🚀 VPN
+  # 7-14: всё, что режет российские IP или недоступно из РФ
   - RULE-SET,geositez-ai,🚀 VPN
+  - RULE-SET,rv-geoblock,🚀 VPN
+  - RULE-SET,rv-deepmind,🚀 VPN
+  - RULE-SET,rv-youtube,🚀 VPN
+  - RULE-SET,rv-telegram,🚀 VPN
+  - RULE-SET,rv-github,🚀 VPN
+  - RULE-SET,rv-google-play,🚀 VPN
+  - RULE-SET,rv-pinterest,🚀 VPN
 
-  # массовый РФ/РБ: домены и подсети
+  # 15-19: российское — напрямую
   - RULE-SET,geositez-ru,DIRECT
-  - RULE-SET,roscom-whitelist,DIRECT
-  - RULE-SET,roscom-direct-ip,DIRECT,no-resolve
+  - RULE-SET,rv-whitelist,DIRECT
+  - RULE-SET,rv-category-ru,DIRECT
+  - RULE-SET,rv-apple,DIRECT
+  - RULE-SET,rv-microsoft,DIRECT
 
-  # зоны .ru / .su / .рф целиком — регулярками, поштучно их перечислять незачем
+  # 20: игры — напрямую, туннель им только портит пинг
+  - RULE-SET,rv-steam,DIRECT
+  - RULE-SET,rv-epicgames,DIRECT
+  - RULE-SET,rv-riot,DIRECT
+  - RULE-SET,rv-origin,DIRECT
+  - RULE-SET,rv-eft,DIRECT
+  - RULE-SET,rv-faceit,DIRECT
+
+  # 21: торренты — НАПРЯМУЮ. Через ноду это жалобы на IP и убитый канал
+  - RULE-SET,rv-torrent,DIRECT
+
+  # 22: зоны .ru / .su / .рф целиком
   - DOMAIN-REGEX,.*\.ru$,DIRECT
   - DOMAIN-REGEX,.*\.su$,DIRECT
   - DOMAIN-REGEX,.*\.xn--p1ai$,DIRECT
 
+  # 23-25: сети РФ/РБ и локалка — ловят приложения, ходящие на голый IP
+  - RULE-SET,rv-ip-direct,DIRECT,no-resolve
+  - RULE-SET,rv-ip-whitelist,DIRECT,no-resolve
+  - RULE-SET,rv-private-domain,DIRECT
+  - RULE-SET,rv-ip-private,DIRECT,no-resolve
   - GEOIP,private,DIRECT,no-resolve
+
+  # 26: всё остальное
   - MATCH,🚀 VPN

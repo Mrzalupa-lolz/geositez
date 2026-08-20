@@ -227,37 +227,102 @@ bind-mount так нельзя. Либо таймер + монтирование
 
 ## 4. Как включить в роутинг
 
-### Серверный (Config Profile ноды в панели)
+Ключ ко всему: **нода видит только тот трафик, который клиент уже решил
+отправить в туннель.** Всё российское до неё просто не доезжает. Поэтому
+почти вся раскладка живёт на клиенте, а на ноде правил всего шесть — правило
+для категории, которую клиент не тунеллирует, бессмысленно.
 
-Полный пример — `examples/node-routing.json`. Суть:
+Готовые конфиги:
 
-```json
-{ "type": "field", "domain": ["ext:custom-geosite.dat:CONNECTIVITY"], "outboundTag": "DIRECT" },
-{ "type": "field", "domain": ["ext:custom-geosite.dat:ADS"],          "outboundTag": "BLOCK"  },
-{ "type": "field", "ip":     ["geoip:private"],                        "outboundTag": "BLOCK"  }
-```
+| где | чем | файл |
+|---|---|---|
+| нода | Xray | `examples/node-routing.json` |
+| клиент | Xray (Happ, v2rayN, Nekoray) | `examples/client-routing-xray.json` |
+| клиент | mihomo / Clash.Meta | `examples/mihomo-rules.yaml` |
+| клиент | sing-box | `examples/singbox-rules.json` |
+
+### Серверный роутинг (Config Profile ноды в панели)
+
+| # | набор | куда | зачем |
+|---|---|---|---|
+| 1 | `ext:custom-geosite.dat:CONNECTIVITY` | DIRECT | пинг меряется по реальному пути клиент → нода → интернет |
+| 2 | `ext:custom-geosite.dat:ADS` | BLOCK | 5331 домен, экономит трафик ноды |
+| 3 | `geoip:private` + `ext:roscom-geoip.dat:private` | BLOCK | чтобы через туннель не лезли во внутрянку сервера |
+| 4 | `ext:roscom-geosite.dat:torrent` | BLOCK | иначе жалобы на IP ноды и выжранный канал |
+| 5 | `ext:custom-geosite.dat:AI` | WARP / DIRECT | если поднят чистый outbound |
+| 6 | `network: tcp,udp` | DIRECT | всё остальное, включая пришедший `TWITCH-ADS` |
+
+`TWITCH-ADS` отдельного правила на ноде **не требует и блокировать его нельзя**:
+он должен упасть в шестое правило и уйти с зарубежного IP — в этом весь смысл.
 
 Синтаксис ссылки — `ext:<имя файла>:<КАТЕГОРИЯ>`. Регистр категории не важен,
 Xray сам приводит к верхнему. Обычные `geosite:` / `geoip:` продолжают работать:
 дефолтные файлы на месте, наши лежат рядом отдельными файлами.
 
-### Клиентский
+### Клиентский роутинг: какой набор куда
 
-* **mihomo / Clash** → `examples/mihomo-rules.yaml` (rule-provider'ы по URL);
-* **sing-box / Happ** → `examples/singbox-rules.json` (`.srs` по URL);
-* **чистый Xray-клиент** не умеет `ext:` без файла на устройстве — там списки
-  либо вшиваются в шаблон подписки, либо клиент берёт mihomo/sing-box формат.
+Порядок сверху вниз, побеждает первое совпавшее правило.
 
-Порядок правил на клиенте:
+| # | набор | источник | записей | куда |
+|---|---|---|---|---|
+| 1 | `CONNECTIVITY` | наш | 16 | **в туннель** |
+| 2 | `ADS` | наш | 5331 | **блок** |
+| 3 | `win-spy` | roscom | 376 | блок *(по желанию)* |
+| 4 | `TWITCH-ADS` | наш | 5 | **в туннель** |
+| 5 | `twitch` | roscom | 43 | direct |
+| 6 | `SYSTEM` | наш | 131 | **direct** |
+| 7 | `AI` | наш | 9 | в туннель / чистый outbound |
+| 8 | `category-geoblock-ru` | roscom | 1017 | **в туннель** |
+| 9 | `google-deepmind` | roscom | 52 | в туннель |
+| 10 | `youtube` | roscom | 177 | в туннель |
+| 11 | `telegram` | roscom | 26 | в туннель |
+| 12 | `github` | roscom | 28 | в туннель |
+| 13 | `google-play` | roscom | 42 | в туннель |
+| 14 | `pinterest` | roscom | 50 | в туннель |
+| 15 | `RU` | наш | 44 | direct |
+| 16 | `whitelist` | roscom | 481 | direct |
+| 17 | `category-ru` | roscom | 106 | direct |
+| 18 | `apple` | roscom | 106 | direct |
+| 19 | `microsoft` | roscom | 66 | direct |
+| 20 | `steam` `epicgames` `riot` `origin` `escapefromtarkov` `faceit` | roscom | 41/27/54/187/4/2 | direct |
+| 21 | `torrent` | roscom | 434 | direct |
+| 22 | regexp `.ru` `.su` `.xn--p1ai` | — | — | direct |
+| 23 | `direct` (geoip) | roscom | ~15000 | direct |
+| 24 | `whitelist` (geoip) | roscom | ~4000 | direct |
+| 25 | `private` (домены + geoip) | roscom | 163 | direct |
+| 26 | всё остальное | — | — | **в туннель** |
+
+`ADS` уже содержит `ADS-NETWORKS` — он подмешивается через `include:` при
+сборке, отдельный набор подключать не надо. Их `category-ads` брать незачем:
+это 2 домена (`ad.mail.ru`, `alt-ad.mail.ru`), оба уже в нашем `ADS`.
+
+### Порядок правил: четыре места, где перестановка ломает всё
+
+Ломается молча — без ошибок в логах, просто перестаёт работать.
+
+| правило | обязано быть выше | иначе |
+|---|---|---|
+| `CONNECTIVITY` | `apple` | `captive.apple.com` лежит в их `apple` (direct), пинг начнёт врать |
+| `TWITCH-ADS` | `twitch` | `gql.twitch.tv` — поддомен `twitch.tv`, вернётся реклама |
+| `SYSTEM` | `google-play` | там `mtalk.google.com` — пуши FCM поедут через VPN и будут отваливаться |
+| `category-geoblock-ru` | regexp `.ru` | внутри `habr.com` и `4pda.ru`, они уедут в direct по зоне |
+
+Плюс `ADS` выше `whitelist`: `mradx.net` у них в whitelist на direct, у нас в блоке.
+
+### Ссылки на наборы
 
 ```
-CONNECTIVITY → в туннель     (нода отправит их в direct → честный пинг через VPN)
-ADS          → REJECT
-SYSTEM       → direct        (пуши и обновления мимо VPN)
-RU, RU-IP    → direct
-.ru/.su/.рф  → direct        (регулярками)
-остальное    → в туннель
+наши    https://github.com/Mrzalupa-lolz/geositez/releases/latest/download/site-<категория>.txt   (mihomo)
+                                                                          site-<категория>.srs   (sing-box)
+roscom  https://cdn.jsdelivr.net/gh/hydraponique/roscomvpn-geosite/release/mihomo/<категория>.mrs
+        https://cdn.jsdelivr.net/gh/hydraponique/roscomvpn-geosite/release/sing-box/<категория>.srs
+        https://cdn.jsdelivr.net/gh/hydraponique/roscomvpn-geoip/release/mihomo/<категория>.mrs
+        https://cdn.jsdelivr.net/gh/hydraponique/roscomvpn-geoip/release/sing-box/<категория>.srs
 ```
+
+Для Xray-клиента наборы не качаются по URL — нужны три `.dat` рядом с ядром
+(`custom-geosite.dat`, `roscom-geosite.dat`, `roscom-geoip.dat`). Блок `geodata`
+в `examples/client-routing-xray.json` заставляет Xray обновлять их самостоятельно.
 
 ---
 
@@ -289,20 +354,23 @@ bash scripts/refresh-ads-networks.sh
 ## 6. Структура репозитория
 
 ```
-data/geosite/*.txt        исходные списки доменов
-tools/geogen/main.go      сборщик .dat (Go, без зависимостей)
-tools/dupcheck/main.go    поиск дубликатов в исходных списках
-scripts/                  установка на ноду, обновление рекламного списка
-examples/                 готовые куски роутинга
-.github/workflows/        сборка и публикация
+data/geosite/*.txt                 исходные списки доменов
+tools/geogen/main.go               сборщик .dat (Go, без зависимостей)
+tools/dupcheck/main.go             поиск дубликатов в исходных списках
+scripts/                           установка на ноду, обновление рекламы
+examples/node-routing.json         серверный роутинг Xray (нода)
+examples/client-routing-xray.json  клиентский роутинг Xray
+examples/mihomo-rules.yaml         клиентский роутинг mihomo/Clash.Meta
+examples/singbox-rules.json        клиентский роутинг sing-box
+.github/workflows/                 сборка и публикация
 ```
 
 ## 7. Грабли
 
-1. **Порядок правил.** Первое совпавшее выигрывает. Три места, где это решает всё:
-   `CONNECTIVITY` выше `SYSTEM` и чужого `apple` (иначе `captive.apple.com` уедет
-   в direct); `TWITCH-ADS` выше `twitch` (иначе вернётся реклама); `ADS` выше
-   чужого `whitelist` (иначе `mradx.net` пойдёт в direct вместо блока).
+1. **Порядок правил.** Первое совпавшее выигрывает. Четыре места, где это решает
+   всё, — таблица в разделе 4. Коротко: `CONNECTIVITY` выше `apple`,
+   `TWITCH-ADS` выше `twitch`, `SYSTEM` выше `google-play`,
+   `category-geoblock-ru` выше regexp `.ru`.
 2. **Домен без префикса в конфиге Xray** это `keyword`, а не домен. В наших
    `.txt` наоборот — дефолт `domain:`, так удобнее.
 3. **Не монтировать папку целиком** в `/usr/local/share/xray/` — затрёт штатные файлы.
