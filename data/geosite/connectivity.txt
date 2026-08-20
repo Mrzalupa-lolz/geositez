@@ -12,18 +12,19 @@
 #  captive.apple.com уедет в direct вместе с остальным Apple.
 
 # --- Microsoft NCSI (Windows) ---
-msftconnecttest.com
-msftncsi.com
+domain:msftconnecttest.com
+domain:msftncsi.com
 
 # --- Apple (macOS/iOS captive portal) ---
-captive.apple.com
-
+domain:captive.apple.com
+domain:play.googleapis.com
 # --- Google / Android ---
-full:connectivitycheck.gstatic.com
-full:connectivitycheck.android.com
+domain:gstatic.com
+domain:connectivitycheck.android.com
 full:clients3.google.com
 full:clients1.google.com
 full:android.clients.google.com
+domain:mtalk.google.com
 
 # --- Cloudflare / Firefox / GNOME / Ubuntu / Debian ---
 cp.cloudflare.com
@@ -33,6 +34,16 @@ connectivity-check.ubuntu.com
 network-test.debian.org
 
 # --- Вендоры телефонов ---
-connectivitycheck.platform.hicloud.com
+domain:connectivitycheck.platform.hicloud.com
 connect.rom.miui.com
-wifi.vivo.com.cn
+domain:wifi.vivo.com.cn
+domain:networkcheck.kde.org
+domain:connectivitycheck.miui.com
+domain:network-test.debian.org
+domain:pki.goog
+domain:digicert.com
+domain:letsencrypt.org
+domain:sectigo.com
+domain:globalsign.com
+domain:amazontrust.com
+domain:hcaptcha.com

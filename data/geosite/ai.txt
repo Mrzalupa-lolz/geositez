@@ -12,3 +12,12 @@ aistudio.google.com
 anthropic.com
 claude.ai
 perplexity.ai
+
+
+"domain:oaistatic.com
+"domain:oaiusercontent.com
+
+"domain:hf.space
+
+"domain:poe.com
+"
