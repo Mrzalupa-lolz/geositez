@@ -39,7 +39,6 @@ connect.rom.miui.com
 domain:wifi.vivo.com.cn
 domain:networkcheck.kde.org
 domain:connectivitycheck.miui.com
-domain:network-test.debian.org
 domain:pki.goog
 domain:digicert.com
 domain:letsencrypt.org
