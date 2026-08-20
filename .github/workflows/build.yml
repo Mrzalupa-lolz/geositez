@@ -118,7 +118,7 @@ jobs:
             || gh release create latest --title "latest" --notes "$NOTES" --target "$GITHUB_SHA"
           gh release edit latest --notes "$NOTES"
           gh release upload latest \
-            dist/custom-geosite.dat dist/client-geosite.dat dist/checksums.txt \
+            dist/custom-geosite.dat dist/custom-geoip.dat dist/client-geosite.dat dist/checksums.txt \
             dist/clash/* dist/singbox/* --clobber
 
       - name: Выложить в ветку release (raw + jsDelivr)
@@ -143,11 +143,14 @@ jobs:
             echo "### Ссылки для серверов"
             echo '```'
             echo "https://github.com/${GITHUB_REPOSITORY}/releases/latest/download/custom-geosite.dat"
+            echo "https://github.com/${GITHUB_REPOSITORY}/releases/latest/download/custom-geoip.dat"
             echo "https://github.com/${GITHUB_REPOSITORY}/releases/latest/download/client-geosite.dat"
             echo '```'
             echo "### Зеркала (если GitHub недоступен с сервера)"
             echo '```'
             echo "https://cdn.jsdelivr.net/gh/${GITHUB_REPOSITORY}@release/custom-geosite.dat"
+            echo "https://cdn.jsdelivr.net/gh/${GITHUB_REPOSITORY}@release/custom-geoip.dat"
             echo "https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/release/custom-geosite.dat"
+            echo "https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/release/custom-geoip.dat"
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
