@@ -1,34 +1,45 @@
 {
   "_комментарий": [
-    "КЛИЕНТСКИЙ роутинг для Xray-core: десктоп (Nekoray, v2rayN), Happ,",
-    "и вообще любой клиент, где можно положить файл рядом с ядром.",
+    "КЛИЕНТСКИЙ роутинг. Самый обычный: список правил сверху вниз, побеждает",
+    "первое совпавшее. Никаких ext: и никаких плоских корзин.",
     "",
-    "ОДИН ФАЙЛ НА ВСЁ: client-geosite.dat — это наши категории плюс все",
-    "категории roscomvpn, склеенные при сборке (tools/datmerge). 29 кодов,",
-    "полный список — в README. Файл кладётся в папку ассетов ядра, рядом",
-    "с geosite.dat/geoip.dat, и НЕ подменяет их: штатные geosite:/geoip:",
-    "продолжают работать.",
+    "ПОЧЕМУ ЭТО РАБОТАЕТ. Наши два файла не докладываются рядом со штатными,",
+    "а ПОДМЕНЯЮТ их. Как только клиент скачал их как geosite.dat и geoip.dat,",
+    "обычный синтаксис geosite:КОД / geoip:КОД начинает указывать в них.",
     "",
-    "Для сетей РФ/РБ по IP нужен второй файл — geoip roscomvpn. Оба",
-    "скачиваются блоком geodata ниже; если клиент его не поддерживает,",
-    "положи файлы руками под теми же именами.",
+    "  geosite.dat  <- client-geosite.dat (наши 7 категорий + 22 roscomvpn)",
+    "  geoip.dat    <- roscomvpn geoip (DIRECT, WHITELIST, PRIVATE)",
     "",
-    "У INCY другая схема — там ровно один geosite-файл и плоские корзины",
-    "вместо порядка правил: см. examples/client-routing-incy.json.",
+    "КУДА КЛАСТЬ ФАЙЛЫ — три варианта, смотря какой клиент:",
+    "  1. INCY и подобные: в настройках профиля есть поля Geositeurl и",
+    "     Geoipurl — вставить туда ссылки из блока _assets ниже. Больше",
+    "     ничего в тех настройках трогать не нужно, роутинг берётся отсюда.",
+    "  2. Xray с поддержкой автообновления: раскомментировать блок geodata.",
+    "  3. Десктоп (Nekoray, v2rayN): скачать оба файла руками и положить в",
+    "     папку ассетов ядра ПОД ИМЕНАМИ geosite.dat и geoip.dat, заменив",
+    "     штатные (сделай их резервную копию, если жалко).",
     "",
-    "Правила проверяются СВЕРХУ ВНИЗ, побеждает первое совпавшее. Порядок",
-    "здесь не косметический — таблица в README, раздел «Порядок правил».",
-    "Ключи с подчёркиванием — только для чтения, из боевого конфига убрать."
+    "Штатные категории (geosite:google, geosite:netflix) после подмены",
+    "пропадают — здесь они и не используются.",
+    "",
+    "Ключи, начинающиеся с подчёркивания, — комментарии для чтения.",
+    "Xray их игнорирует, но если твой клиент ругается на неизвестные поля,",
+    "просто вычисти все строки, начинающиеся с \"_\"."
   ],
 
-  "geodata": {
-    "_": "Xray сам обновляет списки по расписанию, перезапуск не нужен",
+  "_assets": {
+    "geosite.dat": "https://github.com/Mrzalupa-lolz/geositez/releases/latest/download/client-geosite.dat",
+    "geoip.dat": "https://github.com/hydraponique/roscomvpn-geoip/releases/latest/download/geoip.dat"
+  },
+
+  "_geodata": {
+    "_": "Раскомментируй (убери подчёркивание), если ядро умеет качать само",
     "cron": "0 */6 * * *",
     "assets": [
       { "url": "https://github.com/Mrzalupa-lolz/geositez/releases/latest/download/client-geosite.dat",
-        "file": "client-geosite.dat" },
+        "file": "geosite.dat" },
       { "url": "https://github.com/hydraponique/roscomvpn-geoip/releases/latest/download/geoip.dat",
-        "file": "roscom-geoip.dat" }
+        "file": "geoip.dat" }
     ]
   },
 
@@ -37,84 +48,85 @@
     "rules": [
       {
         "_": "1. проверка связи — В ТУННЕЛЬ. Нода развернёт её в direct, и пинг",
-        "_2": "померится по реальному пути. ОБЯЗАН быть первым.",
+        "_2": "померится по реальному пути. ОБЯЗАН быть выше правила 8: внутри",
+        "_3": "geosite:APPLE лежит captive.apple.com.",
         "type": "field",
-        "domain": ["ext:client-geosite.dat:CONNECTIVITY"],
+        "domain": ["geosite:CONNECTIVITY"],
         "outboundTag": "proxy"
       },
       {
-        "_": "2. реклама, трекеры и телеметрия Windows — в чёрную дыру",
+        "_": "2. реклама, трекеры, телеметрия Windows — в чёрную дыру.",
+        "_2": "ADS уже содержит ADS-NETWORKS, отдельно его писать не нужно.",
         "type": "field",
         "domain": [
-          "ext:client-geosite.dat:ADS",
-          "ext:client-geosite.dat:WIN-SPY"
+          "geosite:ADS",
+          "geosite:CATEGORY-ADS",
+          "geosite:WIN-SPY"
         ],
         "outboundTag": "block"
       },
       {
         "_": "3. Twitch: токен и манифест В ТУННЕЛЬ — с зарубежного IP приходит",
         "_2": "полная лестница качества (Source). ОБЯЗАН быть выше правила 4:",
-        "_3": "gql.twitch.tv это поддомен twitch.tv.",
+        "_3": "gql.twitch.tv это поддомен twitch.tv, и правило 4 его перехватит.",
         "type": "field",
-        "domain": ["ext:client-geosite.dat:TWITCH-ADS"],
+        "domain": ["geosite:TWITCH-ADS"],
         "outboundTag": "proxy"
       },
       {
-        "_": "4. сам Twitch — НАПРЯМУЮ. С российского IP рекламу не подставляют,",
-        "_2": "и тяжёлое видео не жрёт трафик ноды.",
+        "_": "4. само видео Twitch — НАПРЯМУЮ. С российского IP рекламу не",
+        "_2": "подставляют, и тяжёлые сегменты не жрут трафик ноды.",
         "type": "field",
-        "domain": ["ext:client-geosite.dat:TWITCH"],
+        "domain": ["geosite:TWITCH"],
         "outboundTag": "direct"
       },
       {
-        "_": "5. системные домены — МИМО VPN. ОБЯЗАН быть выше правила 7:",
-        "_2": "там GOOGLE-PLAY, а в нём были пуши FCM — через туннель они",
-        "_3": "отваливаются на каждом реконнекте. (В client-geosite.dat пуши",
-        "_4": "из GOOGLE-PLAY уже вычтены, но порядок всё равно держим.)",
+        "_": "5. пуши, обновления ОС, NTP, OCSP — строго МИМО VPN. ОБЯЗАН быть",
+        "_2": "выше правила 7: в geosite:GOOGLE-PLAY живут пуши FCM, через туннель",
+        "_3": "они отваливаются на каждом реконнекте.",
         "type": "field",
-        "domain": ["ext:client-geosite.dat:SYSTEM"],
+        "domain": ["geosite:SYSTEM"],
         "outboundTag": "direct"
       },
       {
-        "_": "6. сервисы, режущие по IP, — в чистый outbound, если он есть",
-        "_отключено": "поменяй на warp, если поднят WARP-outbound",
+        "_": "6. сервисы, режущие по IP и стране, — в туннель",
         "type": "field",
-        "domain": ["ext:client-geosite.dat:AI"],
+        "domain": ["geosite:AI"],
         "outboundTag": "proxy"
       },
       {
         "_": "7. всё, что режет российские IP или недоступно из РФ, — В ТУННЕЛЬ.",
-        "_2": "ОБЯЗАН быть выше правила 9 (regexp .ru): внутри habr.com и 4pda.ru.",
+        "_2": "ОБЯЗАН быть выше правила 9 (зона .ru): внутри habr.com и 4pda.ru.",
         "type": "field",
         "domain": [
-          "ext:client-geosite.dat:CATEGORY-GEOBLOCK-RU",
-          "ext:client-geosite.dat:GOOGLE-DEEPMIND",
-          "ext:client-geosite.dat:YOUTUBE",
-          "ext:client-geosite.dat:TELEGRAM",
-          "ext:client-geosite.dat:GITHUB",
-          "ext:client-geosite.dat:GOOGLE-PLAY",
-          "ext:client-geosite.dat:PINTEREST"
+          "geosite:CATEGORY-GEOBLOCK-RU",
+          "geosite:GOOGLE-DEEPMIND",
+          "geosite:YOUTUBE",
+          "geosite:TELEGRAM",
+          "geosite:GITHUB",
+          "geosite:GOOGLE-PLAY",
+          "geosite:PINTEREST"
         ],
         "outboundTag": "proxy"
       },
       {
         "_": "8. российское и то, чему туннель только вредит, — НАПРЯМУЮ.",
-        "_2": "torrent здесь не случайно: через ноду это жалобы на IP и убитый канал.",
+        "_2": "TORRENT здесь не случайно: через ноду это жалобы на IP и убитый канал.",
         "type": "field",
         "domain": [
-          "ext:client-geosite.dat:RU",
-          "ext:client-geosite.dat:WHITELIST",
-          "ext:client-geosite.dat:CATEGORY-RU",
-          "ext:client-geosite.dat:APPLE",
-          "ext:client-geosite.dat:MICROSOFT",
-          "ext:client-geosite.dat:STEAM",
-          "ext:client-geosite.dat:EPICGAMES",
-          "ext:client-geosite.dat:RIOT",
-          "ext:client-geosite.dat:ORIGIN",
-          "ext:client-geosite.dat:ESCAPEFROMTARKOV",
-          "ext:client-geosite.dat:FACEIT",
-          "ext:client-geosite.dat:TORRENT",
-          "ext:client-geosite.dat:PRIVATE"
+          "geosite:RU",
+          "geosite:WHITELIST",
+          "geosite:CATEGORY-RU",
+          "geosite:APPLE",
+          "geosite:MICROSOFT",
+          "geosite:STEAM",
+          "geosite:EPICGAMES",
+          "geosite:RIOT",
+          "geosite:ORIGIN",
+          "geosite:ESCAPEFROMTARKOV",
+          "geosite:FACEIT",
+          "geosite:TORRENT",
+          "geosite:PRIVATE"
         ],
         "outboundTag": "direct"
       },
@@ -129,18 +141,19 @@
         "outboundTag": "direct"
       },
       {
-        "_": "10. сети РФ/РБ по IP: ловит приложения, ходящие на голый адрес без DNS",
+        "_": "10. сети РФ/РБ по IP: ловит приложения, которые ходят на голый",
+        "_2": "адрес без DNS, — их доменные правила выше не видят.",
         "type": "field",
         "ip": [
-          "ext:roscom-geoip.dat:DIRECT",
-          "ext:roscom-geoip.dat:WHITELIST"
+          "geoip:DIRECT",
+          "geoip:WHITELIST"
         ],
         "outboundTag": "direct"
       },
       {
         "_": "11. локалка и служебные диапазоны — мимо туннеля",
         "type": "field",
-        "ip": ["geoip:private", "ext:roscom-geoip.dat:PRIVATE"],
+        "ip": ["geoip:PRIVATE"],
         "outboundTag": "direct"
       },
       {
@@ -154,7 +167,7 @@
 
   "_outbounds": [
     "Боевой proxy-outbound приезжает из подписки — здесь только заглушки,",
-    "чтобы конфиг читался целиком. В реальный конфиг вставляй свои.",
+    "чтобы файл читался целиком. Теги должны совпадать с outboundTag выше.",
     { "tag": "proxy", "protocol": "vless", "settings": {} },
     { "tag": "direct", "protocol": "freedom" },
     { "tag": "block", "protocol": "blackhole" }

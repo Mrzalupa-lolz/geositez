@@ -237,8 +237,7 @@ bind-mount так нельзя. Либо таймер + монтирование
 | где | чем | файл | как ссылается на списки |
 |---|---|---|---|
 | нода | Xray | `examples/node-routing.json` | `ext:` на три файла на диске |
-| клиент | Xray (Nekoray, v2rayN, Happ) | `examples/client-routing-xray.json` | `ext:client-geosite.dat` |
-| клиент | INCY | `examples/client-routing-incy.json` | `geosite:` + плоские корзины |
+| клиент | Xray: INCY, Happ, Nekoray, v2rayN | `examples/client-routing-xray.json` | `geosite:` / `geoip:` по подменённым файлам |
 | клиент | mihomo / Clash.Meta | `examples/mihomo-rules.yaml` | rule-provider по URL |
 | клиент | sing-box | `examples/singbox-rules.json` | rule-set по URL |
 
@@ -299,8 +298,11 @@ Xray сам приводит к верхнему. Обычные `geosite:` / `g
 
 ### Один файл для клиента: `client-geosite.dat`
 
-Xray-клиенты умеют подменять гео-файл, но обычно **ровно один**: INCY принимает
-`Geositeurl` и `Geoipurl`, и всё. Три файла, как на ноде, туда не положить.
+На ноде три `.dat` лежат на диске и подключаются через `ext:`. У клиента так
+нельзя: он умеет подменить **ровно один** geosite и один geoip (в INCY это поля
+`Geositeurl` и `Geoipurl`). Зато после подмены работает обычный синтаксис
+`geosite:КОД` / `geoip:КОД` — а значит и самый обычный роутинг со списком
+правил по порядку. Никаких `ext:` и никаких плоских корзин.
 
 Поэтому CI собирает ещё и `client-geosite.dat` — наши категории плюс все
 категории roscomvpn в одном файле, **29 кодов**:
@@ -314,11 +316,10 @@ TORRENT  TWITCH  WHITELIST  WIN-SPY  YOUTUBE                        (roscomvpn)
 ```
 
 Формат `.dat` — это повторяющееся protobuf-поле, поэтому два файла достаточно
-склеить: `tools/datmerge` так и делает. Плюс он **вычитает пересечения**, и вот
-зачем. INCY раскладывает правила не по порядку, а по шести плоским корзинам
-(`DirectSites`, `ProxySites`, `BlockSites` и то же для IP). Приоритет между
-корзинами задать нельзя, поэтому домен, попавший в две категории из разных
-корзин, ведёт себя непредсказуемо. Убираем это на сборке:
+склеить: `tools/datmerge` так и делает. Плюс он **вычитает пересечения** — два
+места, где домен попадал сразу в две категории с разными маршрутами. Порядок
+правил их и так разруливает, но после вычитания результат не зависит от того,
+не переставил ли кто-нибудь правила местами:
 
 ```
 -sub APPLE-CONNECTIVITY     captive.apple.com    убран из APPLE       (92 -> 91)
@@ -335,27 +336,18 @@ https://github.com/hydraponique/roscomvpn-geoip/releases/latest/download/geoip.d
 Второй — geoip roscomvpn, коды в нём `DIRECT`, `WHITELIST`, `PRIVATE`.
 Пересобирается ежедневно в 04:30 UTC, чтобы не отставать от их релизов.
 
-### Twitch в INCY: одно место, которое вычесть нельзя
+### Twitch: почему порядок правил обязателен
 
-`TWITCH-ADS` должен идти в туннель, `TWITCH` — напрямую. Но `gql.twitch.tv` это
-поддомен `twitch.tv`, а операции «кроме» в geosite нет: выкинуть поддомен из
-широкого правила невозможно. В форматах с явным порядком (нода, десктопный
-Xray, mihomo, sing-box) это решается тем, что `TWITCH-ADS` стоит выше. В INCY
-порядка нет — решает приоритет корзин, а он не документирован.
+`TWITCH-ADS` идёт в туннель, `TWITCH` — напрямую. Вычесть первое из второго
+нельзя: `gql.twitch.tv` это поддомен `twitch.tv`, а операции «кроме» в geosite
+не существует. Держится всё исключительно порядком — `TWITCH-ADS` стоит выше
+`TWITCH`, а побеждает первое совпавшее правило. Так работает и на ноде, и в
+клиентском Xray, и в mihomo, и в sing-box.
 
-**Как проверить за две минуты.** Добавь `ipify.org` разом в `DirectSites` и в
-`ProxySites`, открой `https://api.ipify.org`:
-
-* показал твой домашний IP → выигрывает `DirectSites`;
-* показал IP ноды → выигрывает `ProxySites`, всё работает как задумано.
-
-**Если выигрывает `DirectSites`**, трюк в INCY не собрать, и надо выбирать:
-
-| что сделать | что получишь |
-|---|---|
-| убрать `geosite:TWITCH` из `DirectSites` | Source есть, но реклама вернётся (сегменты пойдут с зарубежного IP) и видео сожрёт трафик ноды |
-| убрать `geosite:TWITCH-ADS` из `ProxySites` | рекламы нет, но качество урезано до того, что Twitch даёт российским IP |
-| перейти на mihomo / sing-box / десктопный Xray | работает как задумано — там порядок правил задаётся явно |
+Если попадётся клиент, который порядка правил не даёт, а раскладывает их по
+плоским корзинам (direct / proxy / block), трюк там не собрать — придётся
+выбирать: Source без блокировки рекламы (убрать `TWITCH` из direct) либо
+блокировку без Source (убрать `TWITCH-ADS` из proxy).
 
 ### Порядок правил: четыре места, где перестановка ломает всё
 
@@ -381,9 +373,11 @@ roscom  https://cdn.jsdelivr.net/gh/hydraponique/roscomvpn-geosite/release/mihom
         https://cdn.jsdelivr.net/gh/hydraponique/roscomvpn-geoip/release/sing-box/<категория>.srs
 ```
 
-Для Xray-клиента наборы не качаются по URL — нужны три `.dat` рядом с ядром
-(`custom-geosite.dat`, `roscom-geosite.dat`, `roscom-geoip.dat`). Блок `geodata`
-в `examples/client-routing-xray.json` заставляет Xray обновлять их самостоятельно.
+Для Xray-клиента наборы по URL не качаются — нужны два файла, подменяющие
+штатные `geosite.dat` и `geoip.dat`: наш `client-geosite.dat` и geoip roscomvpn.
+В INCY для этого есть поля `Geositeurl` / `Geoipurl`, на десктопе они кладутся
+руками в папку ассетов ядра, а блок `geodata` в `examples/client-routing-xray.json`
+заставляет ядро обновлять их само.
 
 ---
 
@@ -421,8 +415,7 @@ tools/dupcheck/main.go             поиск дубликатов в исход
 tools/datmerge/main.go             склейка .dat для клиентов + вычитание пересечений
 scripts/                           установка на ноду, обновление рекламы
 examples/node-routing.json         серверный роутинг Xray (нода)
-examples/client-routing-xray.json  клиентский роутинг Xray
-examples/client-routing-incy.json  клиентский роутинг INCY
+examples/client-routing-xray.json  клиентский роутинг Xray (INCY, Happ, десктоп)
 examples/mihomo-rules.yaml         клиентский роутинг mihomo/Clash.Meta
 examples/singbox-rules.json        клиентский роутинг sing-box
 .github/workflows/                 сборка и публикация
