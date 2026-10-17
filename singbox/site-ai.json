@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "domain": [
+        "openai.com",
+        "chatgpt.com",
+        "oaistatic.com",
+        "oaiusercontent.com",
+        "gemini.google.com",
+        "aistudio.google.com",
+        "anthropic.com",
+        "claude.ai",
+        "perplexity.ai"
+      ],
+      "domain_suffix": [
+        ".openai.com",
+        ".chatgpt.com",
+        ".oaistatic.com",
+        ".oaiusercontent.com",
+        ".gemini.google.com",
+        ".aistudio.google.com",
+        ".anthropic.com",
+        ".claude.ai",
+        ".perplexity.ai"
+      ]
+    }
+  ]
+}
