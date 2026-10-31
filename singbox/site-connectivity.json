@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "domain": [
+        "msftconnecttest.com",
+        "msftncsi.com",
+        "captive.apple.com",
+        "play.googleapis.com",
+        "gstatic.com",
+        "connectivitycheck.android.com",
+        "clients3.google.com",
+        "clients1.google.com",
+        "android.clients.google.com",
+        "mtalk.google.com",
+        "cp.cloudflare.com",
+        "detectportal.firefox.com",
+        "nmcheck.gnome.org",
+        "connectivity-check.ubuntu.com",
+        "network-test.debian.org",
+        "connectivitycheck.platform.hicloud.com",
+        "connect.rom.miui.com",
+        "wifi.vivo.com.cn",
+        "networkcheck.kde.org",
+        "connectivitycheck.miui.com",
+        "pki.goog",
+        "digicert.com",
+        "letsencrypt.org",
+        "sectigo.com",
+        "globalsign.com",
+        "amazontrust.com",
+        "hcaptcha.com"
+      ],
+      "domain_suffix": [
+        ".msftconnecttest.com",
+        ".msftncsi.com",
+        ".captive.apple.com",
+        ".play.googleapis.com",
+        ".gstatic.com",
+        ".connectivitycheck.android.com",
+        ".mtalk.google.com",
+        ".cp.cloudflare.com",
+        ".detectportal.firefox.com",
+        ".nmcheck.gnome.org",
+        ".connectivity-check.ubuntu.com",
+        ".network-test.debian.org",
+        ".connectivitycheck.platform.hicloud.com",
+        ".connect.rom.miui.com",
+        ".wifi.vivo.com.cn",
+        ".networkcheck.kde.org",
+        ".connectivitycheck.miui.com",
+        ".pki.goog",
+        ".digicert.com",
+        ".letsencrypt.org",
+        ".sectigo.com",
+        ".globalsign.com",
+        ".amazontrust.com",
+        ".hcaptcha.com"
+      ]
+    }
+  ]
+}
