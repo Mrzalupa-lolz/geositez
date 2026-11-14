@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "rules": [
+    {
+      "domain": [
+        "gql.twitch.tv",
+        "usher.ttvnw.net",
+        "playlist.ttvnw.net",
+        "ads.twitch.tv",
+        "static-cdn.jtvnw.net"
+      ],
+      "domain_suffix": [
+        ".gql.twitch.tv",
+        ".usher.ttvnw.net",
+        ".playlist.ttvnw.net",
+        ".ads.twitch.tv",
+        ".static-cdn.jtvnw.net"
+      ]
+    }
+  ]
+}
